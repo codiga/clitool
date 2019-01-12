@@ -19,7 +19,7 @@ import requests
 
 from .version import __version__
 
-API_ENDPOINT = 'http://localhost:9000/api/project/analysis/new'
+API_ENDPOINT = 'http://www.code-inspector.com/api/project/analysis/new'
 
 log = logging.getLogger('code-inspector')
 
