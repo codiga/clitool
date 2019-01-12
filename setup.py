@@ -32,7 +32,7 @@ setup(
             'code-inspector = code_inspector.cli:main',
         ],
     },
-    install_requires=['docopt>=0.6.1', 'requests>=1.0.0'],
+    install_requires=['docopt>=0.6.1', 'requests>=2.4.2'],
     extras_require={
         'yaml': ['PyYAML>=3.10'],
         ':python_version < "3"': ['urllib3[secure]'],
@@ -41,7 +41,7 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Topic :: Software Development :: Testing',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',

@@ -19,7 +19,7 @@ import requests
 
 from .version import __version__
 
-API_ENDPOINT = 'http://www.code-inspector.com/api/project/analysis/new'
+API_ENDPOINT = 'https://www.code-inspector.com/api/project/analysis/new'
 
 log = logging.getLogger('code-inspector')
 
@@ -45,7 +45,7 @@ def main(argv=None):
 
         payload = {'accessKey': access_key, 'secretKey': secret_key}
         response = requests.post(API_ENDPOINT, json=payload)
-
+        log.debug('text: {0}'.format(response.text))
         response_json = response.json()
         if response.status_code != 200:
             log.info('Non 200 error code')
