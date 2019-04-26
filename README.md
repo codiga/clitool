@@ -6,6 +6,11 @@ in continuous integration pipeline.
 
 ## Build
 
+You can build and try the program using the following command:
+
+```bash
+python setup.py install --user && $HOME/.local/bin/code-inspector
+```
 
 ## Usage
 
