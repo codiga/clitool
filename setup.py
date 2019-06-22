@@ -27,6 +27,7 @@ setup(
     author='code-inspector',
     description='Trigger new code analysis on code-inspector.io',
     long_description=DESCRIPTION,
+    long_description_content_type="text/markdown",
     entry_points={
         'console_scripts': [
             'code-inspector-compare = code_inspector.compare:main',
