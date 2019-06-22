@@ -1,7 +1,12 @@
 # Code-Inspector Continuous Integration Tool
 
-This is a Python tool used to trigger new analysis on [code-inspector](https://www.code-inspector.com)
-in continuous integration pipeline.
+
+These are various Python tools used to use the [code-inspector](https://www.code-inspector.com)
+engine in a continuous integration pipeline and compare analysis.
+
+The following programs are being included:
+
+ * `code-inspector-compare`: compare a project metrics against another projects or branches
 
 
 ## Build
@@ -9,8 +14,10 @@ in continuous integration pipeline.
 You can build and try the program using the following command:
 
 ```bash
-python setup.py install --user && $HOME/.local/bin/code-inspector
+python setup.py install --user
 ```
+
+You will then find binaries in `$HOME/.local/bin`, for example `$HOME/.local/bin/code-inspector-compare`.
 
 ## Usage
 
@@ -25,18 +32,29 @@ export CODE_INSPECTOR_ACCESS_KEY=<INSERT-YOUR-API-ACCESS-KEY-HERE>
 export CODE_INSPECTOR_SECRET_KEY=<INSERT-YOUR-API-SECRET-KEY-HERE>
 ```
 
-Then, just invoke the tool as follow:
+### Compare tool
+
+The compare tool is used to compare a project with another repository. 
+Invoke the tool as follow:
 
 ```python 
-code-inspector
+code-inspector-compare -p "mergify integration" --kind <REPOSITORY_KIND> --url <URL_TO_OTHER_REPOSITORY> --target-branch=<BRANCH> --target-revision=<REVISION>
 ```
 
-If a new build is triggered, the tool returns 0. If any issue occurs, it will return a non-zero value.
+This command will compare the project `mergify integration` on code inspector with the project located
+at the URL `<URL_TO_OTHER_REPOSITORY>`.
+
+These are the explanation for the other parameters:
+ * `kind`: kind of repository used for the target. Can be `Git`, `Github`, `Gitlab` or `Bitbucket`. Values are explained below. This parameter is **REQUIRED**.
+ * `URL`: URL of the repository. This parameter is **REQUIRED**.
+ * `target-revision`: revision of the target repository. This parameter is **OPTIONAL**
+ * `target-branch`: branch of the target repository. This parameter is **OPTIONAL**
+ 
 
 If you get non-zero return code and want to investigate, use the `-verbose` flag and invoke the tool as follow:
 
 ```python 
-code-inspector --verbose
+code-inspector-compare --verbose
 ```
 
 

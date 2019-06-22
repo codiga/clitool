@@ -29,7 +29,7 @@ setup(
     long_description=DESCRIPTION,
     entry_points={
         'console_scripts': [
-            'code-inspector = code_inspector.cli:main',
+            'code-inspector-compare = code_inspector.compare:main',
         ],
     },
     install_requires=['docopt>=0.6.1', 'requests>=2.4.2'],
