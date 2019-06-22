@@ -138,7 +138,8 @@ def poll_compare_analysis(access_key, secret_key, compare_analysis_id, timeout):
         target_status = target_analysis['status']
 
         if source_status.upper() not in ["DONE", "ERROR"] or target_status.upper() not in ["DONE", "ERROR"]:
-            log.error("source analysis or target analysis are not done successfully. source status = {0}, target status = {1}".format(source_analysis['status'], target_analysis['status']))
+            log.error("source analysis or target analysis are not done successfully. source status = {0}, "
+                      "target status = {1}".format(source_analysis['status'], target_analysis['status']))
             continue
 
         if source_status.upper() == "ERROR":
@@ -156,7 +157,7 @@ def poll_compare_analysis(access_key, secret_key, compare_analysis_id, timeout):
                 return 5
             if diff_duplicates > 0:
                 return 6
-        return 0
+            return 0
 
 
 def get_compare_analysis(access_key, secret_key, compare_analysis_id):
@@ -246,7 +247,8 @@ def main(argv=None):
             log.error("Cannot get information about your project, exiting")
             sys.exit(2)
 
-        compare_analysis_id = start_compare_analysis(access_key, secret_key, project_id, kind, url, username, password, target_branch, target_revision)
+        compare_analysis_id = start_compare_analysis(access_key, secret_key, project_id,
+                                                     kind, url, username, password, target_branch, target_revision)
         if not compare_analysis_id:
             log.error("Cannot start a new comparison, exiting")
             sys.exit(3)
