@@ -1,4 +1,4 @@
-"""CLI tool for Continuous Integration with code-inspector.com
+"""Compare two projects using Code Inspector engine.
 
 Usage:
     code-inspector [options]
@@ -24,35 +24,14 @@ import logging
 import sys
 
 import docopt
-import requests
 import time
 
+import constants as constants
+from common import do_graphql_query
 from .version import __version__
 
-GRAPHQL_ENDPOINT_URL = 'https://api.code-inspector.com/graphql'
-
-DEFAULT_TIMEOUT = 1200  # 20 minutes
-VALID_SCM_KINDS = ["Bitbucket", "Git", "Github", "Gitlab"]
 
 log = logging.getLogger('code-inspector')
-
-
-def do_graphql_query(access_key, secret_key, payload):
-    """
-    Do a GraphQL query
-    :param access_key: the access key
-    :param secret_key: the secret key
-    :param payload: the payload we want to send.
-    :return: the returned JSON object
-    """
-    headers = {"X-Access-Key": access_key,
-               "X-Secret-Key": secret_key}
-    response = requests.post(GRAPHQL_ENDPOINT_URL, json=payload, headers=headers)
-    if response.status_code != 200:
-        log.info('Failed to send payload')
-        return None
-    response_json = response.json()
-    return response_json["data"]
 
 
 def get_project_id(access_key, secret_key, project_name):
@@ -114,7 +93,6 @@ def start_compare_analysis(access_key, secret_key, project_id, kind, url, userna
     except Exception:
         log.error("Error while starting new analysis")
         return None
-
 
 
 def poll_compare_analysis(access_key, secret_key, compare_analysis_id, timeout):
@@ -222,7 +200,7 @@ def main(argv=None):
     options = docopt.docopt(__doc__, argv=argv, version=__version__)
 
     level = logging.DEBUG if options['--verbose'] else logging.INFO
-    timeout = options['-t'] if options['-t'] else DEFAULT_TIMEOUT
+    timeout = options['-t'] if options['-t'] else constants.DEFAULT_TIMEOUT
     project_name = options['-p']
     url = options['--url']
     kind = options['--kind']
@@ -258,7 +236,7 @@ def main(argv=None):
             log.info('URL not defined!')
             sys.exit(1)
 
-        if kind not in VALID_SCM_KINDS:
+        if kind not in constants.VALID_SCM_KINDS:
             log.info("Invalid kind")
             sys.exit(1)
 

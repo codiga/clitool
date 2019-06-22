@@ -30,6 +30,7 @@ setup(
     entry_points={
         'console_scripts': [
             'code-inspector-compare = code_inspector.compare:main',
+            'code-inspector-project = code_inspector.project:main'
         ],
     },
     install_requires=['docopt>=0.6.1', 'requests>=2.4.2'],

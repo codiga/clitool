@@ -1,3 +1,6 @@
+[![Code Grade](https://www.code-inspector.com/project/183/status/svg)](https://www.code-inspector.com/public/project/183/Code%20Inspector%20CI%20Tools/dashboard)
+
+
 # Code-Inspector Continuous Integration Tool
 
 
@@ -6,6 +9,7 @@ engine in a continuous integration pipeline and compare analysis.
 
 The following programs are being included:
 
+ * `code-inspector-project`: get metrics about a project
  * `code-inspector-compare`: compare a project metrics against another projects or branches
 
 
@@ -32,12 +36,46 @@ export CODE_INSPECTOR_ACCESS_KEY=<INSERT-YOUR-API-ACCESS-KEY-HERE>
 export CODE_INSPECTOR_SECRET_KEY=<INSERT-YOUR-API-SECRET-KEY-HERE>
 ```
 
+### Project information tool
+
+Get general information about a project.
+
+Invoke the tool as follow:
+
+```bash
+code-inspector-project -p <PROJECT_NAME>
+```
+
+For example:
+
+```bash
+code-inspector-project -p "mergify integration"
+```
+
+This is an example of the execution results:
+
+```
+{
+    "lastAnalysis": {
+        "status": "Done", 
+        "summary": {
+            "duplicates": 0, 
+            "duplicated_lines": 0, 
+            "violations": 2
+        }
+    }, 
+    "id": 173, 
+    "name": "mergify integration"
+}
+```
+
+
 ### Compare tool
 
 The compare tool is used to compare a project with another repository. 
 Invoke the tool as follow:
 
-```python 
+```bash
 code-inspector-compare -p "mergify integration" --kind <REPOSITORY_KIND> --url <URL_TO_OTHER_REPOSITORY> --target-branch=<BRANCH> --target-revision=<REVISION>
 ```
 
@@ -48,6 +86,7 @@ When the tool successfully executes, it reports the execution in a JSON object.
 This object shows you the number of violations, duplicates so that developers can
 reuse this later.
 There is an example of the JSON object - as follow:
+
 ```
 {
     "status": "Done", 
