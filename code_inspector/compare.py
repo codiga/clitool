@@ -1,7 +1,7 @@
 """Compare two projects using Code Inspector engine.
 
 Usage:
-    code-inspector [options]
+    code-inspector-compare [options]
 
 Global options:
     -v --verbose             Print the results of the requests when succeeding
@@ -15,7 +15,7 @@ Global options:
     --target-branch <STR>    Target branch to analyze (optional)
     --target-revision <STR>  Target revision to analyze (optional)
 Example:
-    $ code-inspector
+    $ code-inspector-compare
 """
 
 import os
@@ -26,8 +26,8 @@ import sys
 import docopt
 import time
 
-import constants as constants
-from common import do_graphql_query
+import code_inspector.constants as constants
+from code_inspector.common import do_graphql_query
 from .version import __version__
 
 
@@ -137,7 +137,7 @@ def poll_compare_analysis(access_key, secret_key, compare_analysis_id, timeout):
         source_status = source_analysis['status']
         target_status = target_analysis['status']
 
-        if source_status.upper() not in ["DONE", "ERROR"] or target_status.upper() not in ["DONE", "ERROR"]:
+        if source_status.upper() not in ["DONE", "ERROR", "SAME_REVISION"] or target_status.upper() not in ["DONE", "ERROR", "SAME_REVISION"]:
             log.error("source analysis or target analysis are not done successfully. source status = {0}, "
                       "target status = {1}".format(source_analysis['status'], target_analysis['status']))
             continue

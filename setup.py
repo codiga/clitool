@@ -1,6 +1,6 @@
 import os
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 VERSION_FILE = os.path.join(os.path.abspath(os.path.dirname(__file__)),
@@ -16,7 +16,7 @@ with open(VERSION_FILE, 'r') as f:
 setup(
     name='code-inspector',
     version=VERSION,
-    packages=['code_inspector'],
+    packages=find_packages(),
     url='https://github.com/codeinspectorio/citool',
     project_urls={
         'Changelog': ('https://github.com/codeinspectorio/citool/'
@@ -30,6 +30,7 @@ setup(
     long_description_content_type="text/markdown",
     entry_points={
         'console_scripts': [
+            'code-inspector-analyze = code_inspector.analyze:main',
             'code-inspector-compare = code_inspector.compare:main',
             'code-inspector-project = code_inspector.project:main'
         ],

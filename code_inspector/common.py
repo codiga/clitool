@@ -1,6 +1,8 @@
+import logging
 import requests
-import constants
+import code_inspector.constants as constants
 
+log = logging.getLogger('code-inspector')
 
 def do_graphql_query(access_key, secret_key, payload):
     """

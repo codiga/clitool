@@ -1,12 +1,12 @@
 """Get the status of a project on Code-Inspector
 
 Usage:
-    code-inspector [options]
+    code-inspector-project [options]
 
 Global options:
     -p PROJECT_NAME          Project name to show
 Example:
-    $ code-inspector -p "MY SUPER PROJECT"
+    $ code-inspector-project -p "MY SUPER PROJECT"
 """
 
 import os
@@ -15,7 +15,7 @@ import logging
 import sys
 
 import docopt
-from common import do_graphql_query
+from code_inspector.common import do_graphql_query
 
 from .version import __version__
 
