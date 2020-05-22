@@ -8,6 +8,7 @@ install:
   - pip install -r requirements.txt
 
 script:
+  - PYTHONPATH=. python  -m unittest discover tests
   - python setup.py install
 
 deploy:
