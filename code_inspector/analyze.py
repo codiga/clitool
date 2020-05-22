@@ -23,6 +23,8 @@ from code_inspector.common import do_graphql_query
 from code_inspector.constants import DEFAULT_TIMEOUT
 from .version import __version__
 
+logging.basicConfig()
+
 log = logging.getLogger('code-inspector')
 
 
@@ -67,6 +69,10 @@ def get_analysis(access_key, secret_key, analysis_id):
           analysis(id: """ + str(analysis_id) + """){
             id
             status
+            techdebt{
+              grade
+              score
+            }
             summary{
               duplicates
               violations
@@ -129,9 +135,9 @@ def main(argv=None):
                     log.debug("analysis not completed yet")
                     time.sleep(5)
                     continue
-                else:
-                    print(json.dumps(poll_analysis, indent=4))
-                    sys.exit(0)
+
+                print(json.dumps(poll_analysis, indent=4))
+                sys.exit(0)
         else:
             log.info("Analysis started")
             log.info(json.dumps(analysis))
