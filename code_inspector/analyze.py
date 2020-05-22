@@ -16,7 +16,6 @@ import json
 import logging
 import sys
 import time
-import traceback
 
 import docopt
 from code_inspector.common import do_graphql_query
