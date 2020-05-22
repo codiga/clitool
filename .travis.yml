@@ -1,20 +1,17 @@
 language: python
-python:
-  - "3.6"
 
-cache: pip
+python:
+  - '3.6'
 
 install:
   - pip install -r requirements.txt
-
 script:
   - PYTHONPATH=. python  -m unittest discover tests
   - python setup.py install
-
 deploy:
   provider: pypi
   user: __token__
   password:
-    secure: vOOVU7kfCgWw+9la6HcccHwujlv/3Qs5sWAj306TOnvW6erTP/OBlCcNm0WDrlPZJKPciH/9wZJcXCVRViM9R+CDF8HvHAyP1Uha6+bQQM3IDHw4GtpI1yHC7T7WkGWatqzRfBAPUq4aDifo/zWIdufTWwYXmBmJbCbZrCsfd+nerL+PCbgNBkORHOsEbatCqmxYXx+bwW/dCkOGERwfK5HymHUngPdlWgaUrmI3uCW2ydblGnlRIlFtcoLpp13KUmH0fwobJrJKUOLpHK3OsC9dZvYO9mwMEwpiZTkVZXqW6y47PmtE48j51a91F+1vkDVV/xw0muYdg7vht5Os0VNcOSwruYG2T+34V9iy/XAMizJk6EiOuo3cYwxJRnyUkS5lJEQzIVen2RB5B+4Q26ukd6bm+Go47KnzadIefg4eJFqqMghx6EhM/dXG3eouKNwp5N/XJ3iWhjJRrtPD4y/XsCGBr/SBjiUGonHW+8IVDnPPicB2SMl4BxcDoSsVw0quHvz9mB6x9sZRkuKTLr5B9yz10xbIZM9NmCwdLUegK8xX9D1gr/bcwYpDWb1vM3ocDGGY+QEs91GffAGKrkT3PKTqA8yTJrKDxaVczPLy88ohS5XFHPqcDjqwx614JWAAQSUUTHKCCR0gZ6SQaW093DySeco15sj7cGlW8aA=
+    secure: eIvPZVj9COUX0aeLy+eQH7cjBZ0m8JUw/qKBkUkQFZ6NiggmIPpiOGyypuxorczUUSfBsiU1emDies5eE+Nza8NRFM2OfvTbKszyIEFnan4E7WLhsS4EZvNhdAuzWubMJ1Bm24LyhrfcG8kB9UQ4qpCEuSRKKWq0crgcJDGlcI8eRsDZxt/JczK/MVdcDu/bVReAnsSQxuFcKwe14/Q8NF+TuA4FHot21qPAZFTlJo7X45WV7NHNl7XGo0ddSlRew63bJWB0HUwiVylB/MHcb3zY1K9EFRgPLVZ6tSfAcR7suSsHol5aiiit/tTzqhcjnFkUEZtw1pNWSMbnJgB1Oao0IK7ZBbgerznc0T0zu2gyrG8F7ZEP8/EMCHAxpyJesNDHjlnYN7hTxD4f8ehmkbZtixgEYjVOZCPXG+9pISkypc7Lqudm2kep3sbGEBqkrrj89hw5V2xZH3cg3K2bNBh+EhUNXGn/rxcC/zEHQCyI7TcF78A/ivvBC4kemr0CRRf15KkDn5fYji42l1AVOEBnyd8BZwhIgL4MDW9vX+UQSr2u5i12aq50+jM1TGdgxKKHQMtUJ5WvtBWCbE/ZjxWRDyvjxuxtDGjYAoLsqviPGlFgSa1+asJcnex80jzGHU5FVpXe52N+2uFtGnzW+pHaHaz2cQbkZfMr1sWCIg8=
   on:
     branch: production
