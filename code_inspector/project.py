@@ -30,31 +30,32 @@ def get_project_information(access_key, secret_key, project_name):
     :param project_name: name of the project
     :return: the project identifier or None is exception or non-existent project.
     """
-    try:
-        query = """
-        {
-            project (name: \"""" + project_name + """\") {
-                id
-                name
-                lastAnalysis{
-                  status
-                  summary{
-                    violations
-                    duplicates
-                    duplicated_lines
-                  }
-                }
+    query = """
+    {
+        project (name: \"""" + project_name + """\") {
+            id
+            name
+            lastAnalysis{
+              status
+              summary{
+                violations
+                duplicates
+                duplicated_lines
+              }
             }
         }
-        """
-        response_json = do_graphql_query(access_key, secret_key, {"query": query})
-        return response_json['project']
-    except Exception:
-        log.error("Error while getting project identifier")
-        return None
+    }
+    """
+    response_json = do_graphql_query(access_key, secret_key, {"query": query})
+    return response_json['project']
 
 
 def main(argv=None):
+    """
+    Make the magic happen.
+    :param argv:
+    :return:
+    """
     options = docopt.docopt(__doc__, argv=argv, version=__version__)
 
     project_name = options['-p']

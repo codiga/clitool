@@ -106,6 +106,11 @@ def get_analysis(access_key, secret_key, analysis_id):
 
 
 def main(argv=None):
+    """
+    Main function that makes the magic happen.
+    :param argv:
+    :return:
+    """
     options = docopt.docopt(__doc__, argv=argv, version=__version__)
 
     token = options['--token']

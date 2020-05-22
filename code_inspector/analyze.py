@@ -36,23 +36,18 @@ def analyze(access_key, secret_key, project_name):
     :param project_name: name of the project
     :return: the project identifier or None is exception or non-existent project.
     """
-    try:
-        args = []
-        args.append("name: \"" + project_name + "\"")
-        args_string = ",".join(args)
-        query = """
-            mutation { scheduleAnalysis(""" + args_string + """){id}}
-        """
-        response_json = do_graphql_query(access_key, secret_key, {"query": query})
+    args = []
+    args.append("name: \"" + project_name + "\"")
+    args_string = ",".join(args)
+    query = """
+        mutation { scheduleAnalysis(""" + args_string + """){id}}
+    """
+    response_json = do_graphql_query(access_key, secret_key, {"query": query})
 
-        if not response_json:
-            return None
-
-        return response_json['scheduleAnalysis']
-    except Exception:
-        traceback.print_exc()
-        log.error("Error while starting new analysis")
+    if not response_json:
         return None
+
+    return response_json['scheduleAnalysis']
 
 
 def get_analysis(access_key, secret_key, analysis_id):
@@ -85,6 +80,11 @@ def get_analysis(access_key, secret_key, analysis_id):
 
 
 def main(argv=None):
+    """
+    Make the magic happen.
+    :param argv:
+    :return:
+    """
     options = docopt.docopt(__doc__, argv=argv, version=__version__)
 
     project_name = options['-p']

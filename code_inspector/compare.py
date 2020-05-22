@@ -120,7 +120,7 @@ def poll_compare_analysis(access_key, secret_key, compare_analysis_id, timeout):
             continue
 
         if not compare_analysis['status'].upper() in ["DONE", "ERROR"]:
-            log.debug("compare analysis in status {0}".format(compare_analysis['status']))
+            log.debug("compare analysis in status %s",compare_analysis['status'])
             continue
 
         if not compare_analysis['sourceAnalysis']:
@@ -139,8 +139,8 @@ def poll_compare_analysis(access_key, secret_key, compare_analysis_id, timeout):
         target_status = target_analysis['status']
 
         if source_status.upper() not in ["DONE", "ERROR", "SAME_REVISION"] or target_status.upper() not in ["DONE", "ERROR", "SAME_REVISION"]:
-            log.error("source analysis or target analysis are not done successfully. source status = {0}, "
-                      "target status = {1}".format(source_analysis['status'], target_analysis['status']))
+            log.error("source analysis or target analysis are not done successfully. source status = %s, "
+                      "target status = %s",source_analysis['status'], target_analysis['status'])
             continue
 
         if source_status.upper() == "ERROR":
@@ -199,6 +199,11 @@ def get_compare_analysis(access_key, secret_key, compare_analysis_id):
 
 
 def main(argv=None):
+    """
+    Make the magic happen.
+    :param argv:
+    :return:
+    """
     options = docopt.docopt(__doc__, argv=argv, version=__version__)
 
     level = logging.DEBUG if options['--verbose'] else logging.INFO
