@@ -13,7 +13,7 @@ Global options:
     --ref <ref>                           Reference to analyze (optional)
     --project <project-name>              Project name to use for preferences (optional)
     --min-quality-score <score>           Code Quality Score from 0 to 100 (optional)
-    --min-quality-grade <grade>           Minimum Code Grade A,B,C,D or E (optional)
+    --min-quality-grade <grade>           Minimum Code Grade EXCELLENT, GOOD, NEUTRAL, WARNING, CRITICAL (optional)
     --max-defects-rate <rate>             Max rate of defect per sloc (optional)
     --max-complex-functions-rate <rate>   Max rate of complex functions in the total number of functions (optional)
     --max-long-functions-rate <rate>      Max rate of long functions in the total number of functions (optional)
@@ -52,9 +52,9 @@ def start_analysis(access_key, secret_key, token, actor, repository, sha, ref, p
     :return: the project identifier or None is exception or non-existent project.
     """
     args = []
-    if project_name:
+    if project_name is not None and len(project_name) > 0:
         args.append("projectName: \"" + project_name + "\"")
-    if ref:
+    if ref is not None and len(ref) > 0:
         args.append("ref: \"" + ref + "\"")
     args.append("token: \"" + token + "\"")
     args.append("actor: \"" + actor + "\"")
@@ -125,6 +125,22 @@ def main(argv=None):
     max_complex_functions_rate_argument = options['--max-complex-functions-rate']
     max_long_functions_rate_argument = options['--max-long-functions-rate']
     custom_timeout_sec = options['--max-timeout-sec']
+
+    logging.info("Invoking github action with the following parameters")
+    logging.info("\_o<                (parameters)                >o_<")
+    logging.info("actor: %s", actor)
+    logging.info("repository: %s", repository)
+    logging.info("sha: %s", sha)
+    logging.info("ref: %s", ref)
+    logging.info("project_name: %s", project_name)
+    logging.info("min_quality_score_argument: %s", min_quality_score_argument)
+    logging.info("min_quality_grade_argument: %s", min_quality_grade_argument)
+    logging.info("max_defects_rate_argument: %s", max_defects_rate_argument)
+    logging.info("max_complex_functions_rate_argument: %s", max_complex_functions_rate_argument)
+    logging.info("max_long_functions_rate_argument: %s", max_long_functions_rate_argument)
+    logging.info("custom_timeout_sec: %s", custom_timeout_sec)
+    logging.info("\_o<                  (starting)                >o_<")
+
 
     try:
         timeout = int(custom_timeout_sec) if custom_timeout_sec is not None else DEFAULT_TIMEOUT
