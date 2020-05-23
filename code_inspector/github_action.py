@@ -126,6 +126,18 @@ def main(argv=None):
     max_long_functions_rate_argument = options['--max-long-functions-rate']
     custom_timeout_sec = options['--max-timeout-sec']
 
+    try:
+        timeout = int(custom_timeout_sec) if custom_timeout_sec is not None else DEFAULT_TIMEOUT
+    except ValueError:
+        timeout = DEFAULT_TIMEOUT
+
+    if timeout == 0:
+        timeout = DEFAULT_TIMEOUT
+
+    log.addHandler(logging.StreamHandler())
+
+    log.setLevel(logging.INFO)
+    
     logging.info("Invoking github action with the following parameters")
     logging.info("\_o<                (parameters)                >o_<")
     logging.info("actor: %s", actor)
@@ -140,20 +152,6 @@ def main(argv=None):
     logging.info("max_long_functions_rate_argument: %s", max_long_functions_rate_argument)
     logging.info("custom_timeout_sec: %s", custom_timeout_sec)
     logging.info("\_o<                  (starting)                >o_<")
-
-
-    try:
-        timeout = int(custom_timeout_sec) if custom_timeout_sec is not None else DEFAULT_TIMEOUT
-    except ValueError:
-        timeout = DEFAULT_TIMEOUT
-
-    if timeout == 0:
-        timeout = DEFAULT_TIMEOUT
-
-    log.addHandler(logging.StreamHandler())
-
-    log.setLevel(logging.INFO)
-    log.info("starting")
 
     try:
         access_key = os.environ.get('CODE_INSPECTOR_ACCESS_KEY')
