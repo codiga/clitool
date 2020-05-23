@@ -235,8 +235,13 @@ def main(argv=None):
             analysis_grade = poll_analysis['techdebt']['grade']
 
             if analysis_slocs > 0:
-                analysis_complex_function_rate = analysis_complex_functions / analysis_total_functions
-                analysis_long_function_rate = analysis_long_functions / analysis_total_functions
+                if analysis_total_functions > 0:
+                    analysis_complex_function_rate = analysis_complex_functions / analysis_total_functions
+                    analysis_long_function_rate = analysis_long_functions / analysis_total_functions
+                else:
+                    analysis_complex_function_rate = 0
+                    analysis_long_function_rate = 0
+
                 analysis_violations_rate = analysis_violations / analysis_slocs
             else:
                 analysis_complex_function_rate = 0
@@ -269,6 +274,7 @@ def main(argv=None):
                 log.info("grade %s is lower than grade %s", analysis_grade, min_quality_grade_argument)
                 sys.exit(1)
 
+            log.info("Everything is fine, all conditions passed")
             sys.exit(0)
 
         sys.exit(0)
