@@ -1,4 +1,5 @@
 [![Code Grade](https://www.code-inspector.com/project/183/status/svg)](https://www.code-inspector.com/public/project/183/Code%20Inspector%20CI%20Tools/dashboard)
+[![Build Status](https://travis-ci.org/codeinspectorio/citool.svg?branch=master)](https://travis-ci.org/codeinspectorio/citool)
 
 
 # Code-Inspector Continuous Integration Tool
