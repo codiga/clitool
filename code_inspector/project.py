@@ -37,10 +37,32 @@ def get_project_information(access_key, secret_key, project_name):
             name
             lastAnalysis{
               status
-              summary{
+              techdebt{
+                score
+                grade
+              } 
+              summary { 
                 violations
                 duplicates
                 duplicated_lines
+                complexFunctions
+                longFunctions
+                longFunctionsRate
+                complexFunctionsRate
+                violationsSeverity1
+                violationsSeverity2
+                violationsSeverity3
+                violationsSeverity4
+                violationsDesign
+                violationsSafety
+                violationsUnknown
+                violationsSecurity
+                violationsDeployment
+                violationsCode_style
+                violationsPerformance
+                violationsError_prone
+                violationsDocumentation
+                violationsBest_practice
               }
             }
         }
