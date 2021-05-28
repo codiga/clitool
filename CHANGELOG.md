@@ -1,3 +1,7 @@
+# 0.0.12 (2021-05-28)
+
+ * Fixing bugs for code-inspector-check-quality
+
 # 0.0.11 (2021-05-27)
 
  * Add code-inspector-check-quality that is similar

@@ -111,7 +111,6 @@ def main(argv=None):
     :return:
     """
     options = docopt.docopt(__doc__, argv=argv, version=__version__)
-
     sha = options['--sha']
     project_name = options['--project']
     min_quality_score_argument = options['--min-quality-score']
