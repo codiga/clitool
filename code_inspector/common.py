@@ -25,10 +25,8 @@ def do_graphql_query(access_key, secret_key, payload):
                "X-Secret-Key": secret_key}
     response = requests.post(constants.GRAPHQL_ENDPOINT_URL, json=payload, headers=headers)
     if response.status_code != 200:
-        print("plop")
         log.info('Failed to send payload')
         return None
-    print("response: {0}".format(response.text))
     response_json = response.json()
     return response_json["data"]
 
