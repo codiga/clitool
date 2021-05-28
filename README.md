@@ -12,6 +12,8 @@ The following programs are being included:
 
  * `code-inspector-project`: get metrics about a project
  * `code-inspector-compare`: compare a project metrics against another projects or branches
+ * `code-inspector-check-quality`: check the quality of a project for a particular revision
+ * `code-inspector-github-action`: specific GitHub action for Code Inspector ([learn more here](https://github.com/codeinspectorio/github-action))
 
 
 ## Build
