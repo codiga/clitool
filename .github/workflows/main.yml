@@ -3,7 +3,7 @@ on: [push]
 jobs:
   build-test:
     runs-on: ubuntu-latest
-    name: Code Inspector Check
+    name: Build, test (and publish if push on production)
     steps:
     - uses: actions/checkout@v2
 
@@ -24,7 +24,7 @@ jobs:
     # Tests with unittest
     - name: Test with unittest
       run: |
-        PYTHONPATH=. python3 -m unittest discover
+        PYTHONPATH=. python3 -m unittest discover tests
 
     # Tests with unittest
     - name: Install
