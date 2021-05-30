@@ -18,6 +18,7 @@ Example:
 Note:
     Make sure your API keys are defined using CODE_INSPECTOR_ACCESS_KEY and CODE_INSPECTOR_SECRET_KEY
 """
+from typing import List, Dict, Set
 
 import docopt
 import os
@@ -28,7 +29,9 @@ import unidiff
 from unidiff import PatchSet
 
 from .constants import BLANK_SHA
+from .utils.file_utils import associate_files_with_language
 from .utils.git import get_git_binary, get_diff
+from .utils.patch_utils import get_added_or_modified_lines
 from .version import __version__
 
 logging.basicConfig()
@@ -52,14 +55,15 @@ def check_push(project_name: str, local_sha: str, remote_sha: str,
     if remote_sha == BLANK_SHA:
         return
 
-    files_to_analyze: list[str] = []
-
     diff_content = get_diff(remote_sha, local_sha)
     print("DIFF")
     patch_set = PatchSet(diff_content)
-    for patch in patch_set:
-        if patch.is_added_file or patch.is_modified_file:
-            files_to_analyze.append(patch.path)
+    added_lines: Dict[str, Set[int]] = get_added_or_modified_lines(patch_set)
+    files_to_analyze: Set[str] = set(added_lines.keys())
+
+    files_with_languages: dict[str, str] = associate_files_with_language(files_to_analyze)
+
+    
 
     print("files to analyze %s", files_to_analyze)
 

@@ -42,3 +42,4 @@ def get_diff(revision1: str, revision2: str):
     :return:
     """
     return execute_git_command([COMMAND_DIFF, revision1, revision2])
+
