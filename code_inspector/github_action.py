@@ -101,7 +101,7 @@ def get_analysis(access_key, secret_key, analysis_id):
         }
         """
     response_json = do_graphql_query(access_key, secret_key, {"query": query})
-    logging.info("Analysis response {0}".format(response_json))
+    logging.info("Analysis response %s",response_json)
     return response_json['analysis']
 
 
@@ -281,4 +281,3 @@ def main(argv=None):
     except KeyboardInterrupt:  # pragma: no cover
         log.info('Aborted')
         sys.exit(1)
-    sys.exit(0)

@@ -13,6 +13,7 @@ The following programs are being included:
  * `code-inspector-project`: get metrics about a project
  * `code-inspector-compare`: compare a project metrics against another projects or branches
  * `code-inspector-check-quality`: check the quality of a project for a particular revision
+ * `code-inspector-pre-commit-check`: script to invoke for a pre-commit hook to check that a commit has no issue
  * `code-inspector-github-action`: specific GitHub action for Code Inspector ([learn more here](https://github.com/codeinspectorio/github-action))
 
 
@@ -20,11 +21,20 @@ The following programs are being included:
 
 You can build and try the program using the following command:
 
+### Python 2
+
 ```bash
 python setup.py install --user
 ```
 
 You will then find binaries in `$HOME/.local/bin`, for example `$HOME/.local/bin/code-inspector-compare`.
+
+
+### Python 3
+
+```bash
+python3 setup.py install
+```
 
 ## Usage
 
