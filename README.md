@@ -150,7 +150,7 @@ These are the potential return code:
  * `5`: the target analysis has more violations than the source
  * `6`: the target analysis has more duplicates than the source
 
-## Using git hooks pre-push
+## Git pre-push hooks
 
 In order to use the pre-push git hooks, edit your `.git/hooks/pre-push` file and add the following command:
 
