@@ -27,7 +27,13 @@ def execute_git_command(arguments: List[str]) -> str:
     """
     args: List[str] = [get_git_binary()]
     args.extend(arguments)
-    process = subprocess.run(args, capture_output=True)
+
+    try:
+        process = subprocess.run(args, check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+        logging.error(process.stderr)
+        GitCommandException("error when executing a git command")
+
     if process.returncode == 0:
         return process.stdout.decode()
     logging.error(process.stderr)
