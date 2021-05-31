@@ -24,8 +24,8 @@ class TestPatchUtils(unittest.TestCase):
         Check that we correctly parse the patch and get the modified lines
         :return:
         """
-        with open('tests/data/patch-example.patch') as f:
-            diff_content = f.read()
+        with open('tests/data/patch-example.patch') as file:
+            diff_content = file.read()
         patch_set = PatchSet(diff_content)
         added_or_modified_lines = get_added_or_modified_lines(patch_set)
 
