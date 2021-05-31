@@ -3,10 +3,13 @@ Common functions to manage the GraphQL API
 """
 import requests
 
+from tenacity import retry, stop_after_attempt, wait_random
+
 from code_inspector import constants as constants
 from code_inspector.common import log
 
 
+@retry(stop=stop_after_attempt(7), wait=wait_random(min=1, max=2))
 def do_graphql_query(access_key, secret_key, payload):
     """
     Do a GraphQL query. This base method is used by all other methods that do a GraphQL query.
@@ -20,8 +23,7 @@ def do_graphql_query(access_key, secret_key, payload):
                "X-Secret-Key": secret_key}
     response = requests.post(constants.GRAPHQL_ENDPOINT_URL, json=payload, headers=headers)
     if response.status_code != 200:
-        print(response.text)
-        log.info('Failed to send payload')
+        log.error('Failed to send GraphQL query to Code Inspector API')
         return None
     response_json = response.json()
     return response_json["data"]

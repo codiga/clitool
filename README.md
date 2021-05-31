@@ -150,6 +150,26 @@ These are the potential return code:
  * `5`: the target analysis has more violations than the source
  * `6`: the target analysis has more duplicates than the source
 
+## Using git hooks pre-push
+
+In order to use the pre-push git hooks, edit your `.git/hooks/pre-push` file and add the following command:
+
+```bash
+code-inspector-pre-commit-check --project-name codeinspector-playground --remote-sha $remote_sha --local-sha $local_sha
+```
+
+The following variables should be defined by the script:
+
+ * `local_sha` represents the local SHA being pushed
+ * `remote_sha` represents the remote SHA at the beginning of this revision
+
+Notes that the following environment variables must be set to use the tool:
+
+ * `CODE_INSPECTOR_ACCESS_KEY`: access key related to your API access
+ * `CODE_INSPECTOR_SECRET_KEY`: secret key related to your API access
+
+
+There is an example of a `pre-push` hook available in [`docs/hooks/pre-push.sample`](docs/hooks/pre-push.sample).
 
 ## About Code Inspector
 

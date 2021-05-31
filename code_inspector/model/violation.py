@@ -13,8 +13,17 @@ class Violation:
         self.description = kwargs['description']
         self.severity = kwargs['severity']
         self.category = kwargs['category']
-        self.line_count = kwargs['lineCount']
+
         self.tool = kwargs['tool']
         self.language = kwargs['language']
         self.rule = kwargs['rule']
-        self.rule_url = kwargs['ruleUrl']
+
+        if 'ruleUrl' in kwargs:
+            self.rule_url = kwargs['ruleUrl']
+        else:
+            self.rule_url = None
+
+        if 'lineCount' in kwargs:
+            self.line_count = kwargs['lineCount']
+        else:
+            self.line_count = None

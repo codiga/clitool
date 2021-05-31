@@ -98,13 +98,16 @@ def analyze_file(filename: str, language: str, project_id: int) -> List[Violatio
     return violations
 
 
-def analyze_files(project_name: str, files_with_language: Dict[str, str], max_timeout_secs: int) -> Dict[str, List[Violation]]:
+def analyze_files(project_name: str,
+                  files_with_language: Dict[str, str],
+                  max_timeout_secs: int) -> Dict[str, List[Violation]]:
     """
     Analyze all files and return the list of violations for all of them. In order
     to speed up analysis, use a thread pool to launch multiple analysis.
 
     :param project_name: name of the project to analyze on Code Inspecto
     :param files_with_language: Dictionary with the files and their languages
+    :param max_timeout_secs: how long before the analysis fails (in seconds)
     :return: dictionary with the file name as key and list of violations as a result
     """
     threads: Dict[str, Thread] = {}
@@ -194,7 +197,7 @@ def check_push(project_name: str, local_sha: str, remote_sha: str,
     # First, analyze each file and get the list of violations.
     files_with_violations: Dict[str, List[Violation]] = analyze_files(project_name, files_with_languages, max_timeout_secs)
 
-    # Then, fileter the violations based on the list of excluded categories and severities passed as arguments.
+    # Then, filter the violations based on the list of excluded categories and severities passed as arguments.
     files_with_violations_filtered: Dict[str, List[Violation]] = {filename: filter_violations(violations, exclude_categories, exclude_severities) for filename, violations in files_with_violations.items()}
 
     # Finally, filter the violations with the information with the diff. Only show the violations that have been
@@ -264,14 +267,32 @@ def main(argv=None):
     if exclude_categories:
         exclude_categories_list = exclude_categories.split(",")
 
+    exclude_severities_list_int: List[int] = []
+    max_timeout_sec_int: int
+
+    # Get the timeout to a seconds value
     if not max_timeout_sec:
-        max_timeout_sec = 60
+        max_timeout_sec_int = 60
+    else:
+        try:
+            max_timeout_sec_int = int(max_timeout_sec)
+        except ValueError:
+            print("timeout value should be an integer")
+            sys.exit(2)
+
+    # Convert the severity list into list of int
+    for severity in exclude_severities_list:
+        try:
+            exclude_severities_list_int.append(int(severity))
+        except ValueError:
+            print("excluded severities should be an int")
+            sys.exit(2)
 
     check_push(
         project_name=project_name,
         exclude_categories=exclude_categories_list,
-        exclude_severities=exclude_severities_list,
+        exclude_severities=exclude_severities_list_int,
         local_sha=local_sha,
         remote_sha=remote_sha,
-        max_timeout_secs=max_timeout_sec)
+        max_timeout_secs=max_timeout_sec_int)
     sys.exit(0)
