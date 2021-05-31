@@ -25,7 +25,7 @@ def execute_git_command(arguments: List[str]) -> str:
     :param arguments: the arguments to pass to execute the git command
     :return: what is returned by the command
     """
-    args: list[str] = [get_git_binary()]
+    args: List[str] = [get_git_binary()]
     args.extend(arguments)
     process = subprocess.run(args, capture_output=True)
     if process.returncode == 0:

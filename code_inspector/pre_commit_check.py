@@ -168,7 +168,7 @@ def print_violations(files_with_violations: Dict[str, List[Violation]]):
 
 
 def check_push(project_name: str, local_sha: str, remote_sha: str,
-               exclude_categories: list[str], exclude_severities: list[int], max_timeout_secs: int):
+               exclude_categories: List[str], exclude_severities: List[int], max_timeout_secs: int):
     """
     Check that the
     :param project_name:
@@ -234,8 +234,8 @@ def main(argv=None):
     max_timeout_sec: str = options['--max-timeout-sec']
     access_key: str = os.environ.get('CODE_INSPECTOR_ACCESS_KEY')
     secret_key: str = os.environ.get('CODE_INSPECTOR_SECRET_KEY')
-    exclude_severities_list: list[str] = []
-    exclude_categories_list: list[str] = []
+    exclude_severities_list: List[str] = []
+    exclude_categories_list: List[str] = []
 
     if not access_key:
         log.error('CODE_INSPECTOR_ACCESS_KEY environment variable not defined!')
