@@ -15,14 +15,14 @@ import logging
 import sys
 
 import docopt
-from code_inspector.common import do_graphql_query
+from .graphql.common import do_graphql_query
 
 from .version import __version__
 
 log = logging.getLogger('code-inspector')
 
 
-def get_project_information(access_key, secret_key, project_name):
+def get_project_information(access_key: str, secret_key: str, project_name: str) -> dict:
     """
     Get the project information with the latest analysis data using the project name
     :param access_key: the access key to the GraphQL API

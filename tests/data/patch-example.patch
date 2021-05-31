@@ -1,0 +1,207 @@
+From f2edbd136fa4f190d57ea25cc69eb20925be23ab Mon Sep 17 00:00:00 2001
+From: Romain Guilloteau <romain.guilloteau@telecom-paris.fr>
+Date: Mon, 18 May 2020 10:54:56 +0200
+Subject: [PATCH] Add error when dividing by 0
+
+---
+ kernel/arch/x86/Makefile              | 19 ++++++++++---------
+ kernel/arch/x86/divisionbyzeroerror.c | 23 +++++++++++++++++++++++
+ kernel/include/arch.h                 |  7 +++++++
+ kernel/libc/__udivdi3.c               |  3 +++
+ libpok/arch/x86/Makefile              |  9 +++++----
+ libpok/arch/x86/divisionbyzeroerror.c | 23 +++++++++++++++++++++++
+ libpok/include/arch.h                 |  7 +++++++
+ libpok/libc/misc/__udivdi3.c          |  5 ++++-
+ 8 files changed, 82 insertions(+), 14 deletions(-)
+ create mode 100644 kernel/arch/x86/divisionbyzeroerror.c
+ create mode 100644 libpok/arch/x86/divisionbyzeroerror.c
+
+diff --git a/kernel/arch/x86/Makefile b/kernel/arch/x86/Makefile
+index 1c9f11b..4c7865f 100644
+--- a/kernel/arch/x86/Makefile
++++ b/kernel/arch/x86/Makefile
+@@ -6,15 +6,16 @@ include $(TOPDIR)/misc/mk/config.mk
+
+ LO_TARGET=	x86.lo
+
+-LO_OBJS=	arch.o		\
+-			gdt.o		\
+-			event.o		\
+-			thread.o	\
+-			space.o		\
+-			syscalls.o	\
+-			interrupt.o	\
+-			pci.o		\
+-			exceptions.o
++LO_OBJS=	arch.o                 \
++		gdt.o                  \
++		event.o                \
++		thread.o               \
++		space.o                \
++		syscalls.o             \
++		interrupt.o            \
++		pci.o                  \
++		exceptions.o           \
++		divisionbyzeroerror.o
+
+ LO_DEPS=	$(BSP)/$(BSP).lo
+
+diff --git a/kernel/arch/x86/divisionbyzeroerror.c b/kernel/arch/x86/divisionbyzeroerror.c
+new file mode 100644
+index 0000000..6c480ba
+--- /dev/null
++++ b/kernel/arch/x86/divisionbyzeroerror.c
+@@ -0,0 +1,23 @@
++/*
++ *                               POK header
++ *
++ * The following file is a part of the POK project. Any modification should
++ * be made according to the POK licence. You CANNOT use this file or a part
++ * of a file for your own project.
++ *
++ * For more information on the POK licence, please see our LICENCE FILE
++ *
++ * Please follow the coding guidelines described in doc/CODING_GUIDELINES
++ *
++ *                                      Copyright (c) 2007-2020 POK team
++ */
++
++#include <arch.h>
++
++void pok_division_by_zero_error() {
++  asm volatile("mov $0,%%ebx  \n\t"
++               "div %%ebx     \n\t"
++               :
++               :
++               : "%eax", "%ebx", "%edx");
++}
+diff --git a/kernel/include/arch.h b/kernel/include/arch.h
+index 90f5317..b47557c 100644
+--- a/kernel/include/arch.h
++++ b/kernel/include/arch.h
+@@ -96,6 +96,13 @@ pok_ret_t pok_space_switch(uint8_t old_partition_id, uint8_t new_partition_id);
+ uint32_t pok_thread_stack_addr(const uint8_t partition_id,
+                                const uint32_t local_thread_id);
+
++/**
++ * This function is called when a division by zero occurs in with 64-bit
++ * numbers. This function will divide by 0 to force the processor to raise a
++ * Division by 0 error.
++ */
++void pok_division_by_zero_error(void);
++
+ #ifdef POK_ARCH_PPC
+ #include <arch/ppc/spinlock.h>
+ #endif
+diff --git a/kernel/libc/__udivdi3.c b/kernel/libc/__udivdi3.c
+index c2d0bce..bb97390 100644
+--- a/kernel/libc/__udivdi3.c
++++ b/kernel/libc/__udivdi3.c
+@@ -12,6 +12,8 @@
+  *                                      Copyright (c) 2007-2020 POK team
+  */
+
++#include <arch.h>
++
+ unsigned long long __udivdi3(unsigned long long num, unsigned long long den) {
+   unsigned long long quot, qbit;
+
+@@ -19,6 +21,7 @@ unsigned long long __udivdi3(unsigned long long num, unsigned long long den) {
+   qbit = 1;
+
+   if (den == 0) {
++    pok_division_by_zero_error();
+     return 0;
+   }
+
+diff --git a/libpok/arch/x86/Makefile b/libpok/arch/x86/Makefile
+index 90d40f0..30c4560 100644
+--- a/libpok/arch/x86/Makefile
++++ b/libpok/arch/x86/Makefile
+@@ -5,10 +5,11 @@ include $(TOPDIR)/misc/mk/config.mk
+
+ LO_TARGET=	x86.lo
+
+-LO_OBJS=	arch.o \
+-		ioports.o \
+-		pci.o \
+-		syscall.o
++LO_OBJS=	arch.o                \
++		ioports.o             \
++		pci.o                 \
++		syscall.o             \
++		divisionbyzeroerror.o
+
+ LO_DEPS=
+
+diff --git a/libpok/arch/x86/divisionbyzeroerror.c b/libpok/arch/x86/divisionbyzeroerror.c
+new file mode 100644
+index 0000000..6c480ba
+--- /dev/null
++++ b/libpok/arch/x86/divisionbyzeroerror.c
+@@ -0,0 +1,23 @@
++/*
++ *                               POK header
++ *
++ * The following file is a part of the POK project. Any modification should
++ * be made according to the POK licence. You CANNOT use this file or a part
++ * of a file for your own project.
++ *
++ * For more information on the POK licence, please see our LICENCE FILE
++ *
++ * Please follow the coding guidelines described in doc/CODING_GUIDELINES
++ *
++ *                                      Copyright (c) 2007-2020 POK team
++ */
++
++#include <arch.h>
++
++void pok_division_by_zero_error() {
++  asm volatile("mov $0,%%ebx  \n\t"
++               "div %%ebx     \n\t"
++               :
++               :
++               : "%eax", "%ebx", "%edx");
++}
+diff --git a/libpok/include/arch.h b/libpok/include/arch.h
+index 52aa2e8..10d7bb0 100644
+--- a/libpok/include/arch.h
++++ b/libpok/include/arch.h
+@@ -16,6 +16,13 @@
+
+ #include <types.h>
+
++/**
++ * This function is called when a division by zero occurs in with 64-bit
++ * numbers. This function will divide by 0 to force the processor to raise a
++ * Division by 0 error.
++ */
++void pok_division_by_zero_error(void);
++
+ void pok_arch_idle(void);
+
+ void pok_arch_yield();
+diff --git a/libpok/libc/misc/__udivdi3.c b/libpok/libc/misc/__udivdi3.c
+index 8912743..f081395 100644
+--- a/libpok/libc/misc/__udivdi3.c
++++ b/libpok/libc/misc/__udivdi3.c
+@@ -12,6 +12,7 @@
+  *                                      Copyright (c) 2007-2020 POK team
+  */
+
++#include <arch.h>
+ #include <core/dependencies.h>
+
+ #ifdef POK_CONFIG_NEEDS_FUNC_UDIVDI3
+@@ -19,8 +20,10 @@
+ unsigned long long __udivdi3(unsigned long long num, unsigned long long den) {
+   unsigned long long quot = 0, qbit = 1;
+
+-  if (den == 0)
++  if (den == 0) {
++    pok_division_by_zero_error();
+     return 0;
++  }
+
+   while ((long long)den >= 0) {
+     den <<= 1;

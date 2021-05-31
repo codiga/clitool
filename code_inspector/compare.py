@@ -27,7 +27,7 @@ import docopt
 import time
 
 import code_inspector.constants as constants
-from code_inspector.common import do_graphql_query
+from .graphql.common import do_graphql_query
 from .version import __version__
 
 logging.basicConfig()
