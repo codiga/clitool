@@ -1,42 +1,38 @@
 """
 Function to create a file analysis using the GraphQL API.
 """
-import json
 
 from code_inspector.graphql.common import do_graphql_query
 
 
-def graphql_create_file_analysis(access_key: str, secret_key: str, filename: str,
-                                 language: str, content: str, project_id: int) -> int:
+def graphql_get_project_info(access_key: str, secret_key: str, project_name: str):
     """
-    Create a file analysis and return its identifier.
+    Get information about a project
 
     :param access_key access key to the API
     :param secret_key secret key to the API
-    :param filename: filename to analyze
-    :param language: language of the file
-    :param content: content of the file
-    :param project_id: project identifier
-    :return: the file analysis identifier
+    :param project_name: name of the project
     """
-    if not filename or not language or not content:
+    if not project_name or not access_key or not secret_key:
         raise ValueError
-    code_content = json.dumps(content)
-    project_id_text: str = "null"
-    if project_id:
-        project_id_text = str(project_id)
     query = """
-    mutation{
-        createFileAnalysis (
-            language: """ + language + """,
-            code: """ + code_content + """,
-            filename: \"""" + filename + """\"
-            projectId: """ + project_id_text + """
-        )
-    }
+        {
+          project(name:\"""" + project_name + """\") {
+            id
+            name
+            public
+            description
+            status
+            owner{
+              username
+            }
+            level
+            analysesCount
+          }
+        }
     """
     data = do_graphql_query(access_key, secret_key, {"query": query})
-    return int(data['createFileAnalysis'])
+    return data['project']
 
 
 def graphql_get_file_analysis(access_key: str, secret_key: str, file_analysis_id: int):

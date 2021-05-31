@@ -32,21 +32,19 @@ import sys
 from unidiff import PatchSet
 
 from .constants import BLANK_SHA
-from .graphql.file_analysis import graphql_create_file_analysis
+from .graphql.constants import STATUS_DONE, STATUS_ERROR
+from .graphql.file_analysis import graphql_create_file_analysis, graphql_get_file_analysis
+from .graphql.project import graphql_get_project_info
 from .model.violation import Violation
 from .utils.file_utils import associate_files_with_language
 from .utils.git import get_git_binary, get_diff
 from .utils.patch_utils import get_added_or_modified_lines
-from .utils.violation_utils import filter_violations
+from .utils.violation_utils import filter_violations, filter_violations_for_diff
 from .version import __version__
 
 logging.basicConfig()
 
 log: logging.Logger = logging.getLogger('code-inspector')
-
-
-def graphql_get_file_analysis(file_analysis_id):
-    pass
 
 
 def analyze_file(filename: str, language: str, project_id: int) -> List[Violation]:
@@ -56,22 +54,43 @@ def analyze_file(filename: str, language: str, project_id: int) -> List[Violatio
     :param filename: the name of the filename
     :return: the list of violations found
     """
-    print("Thread started")
+    access_key: str = os.environ.get('CODE_INSPECTOR_ACCESS_KEY')
+    secret_key: str = os.environ.get('CODE_INSPECTOR_SECRET_KEY')
+
+    violations: List[Violation] = []
     file_analysis_id: int = None
+
+    # Read the file being pushed/sent
     with open(filename, "r") as f:
         code = f.read()
 
         file_analysis_id = graphql_create_file_analysis(
+            access_key=access_key,
+            secret_key=secret_key,
             filename=filename,
             language=language,
             project_id=project_id,
             content=code
         )
 
+    # Make the analysis on Code Inspector and wait for the analysis to complete.
     while True:
-        file_analysis_status = graphql_get_file_analysis(file_analysis_id)
+        file_analysis = graphql_get_file_analysis(
+            access_key=access_key,
+            secret_key=secret_key,
+            file_analysis_id=file_analysis_id
+        )
+        if file_analysis['getFileAnalysis']['status'] == STATUS_ERROR:
+            break
 
-    return []
+        if file_analysis['getFileAnalysis']['status'] == STATUS_DONE:
+            for graphql_violation in file_analysis['getFileAnalysis']['violations']:
+                violations.append(Violation(**graphql_violation))
+            break
+
+        time.sleep(0.5)
+        continue
+    return violations
 
 
 def analyze_files(project_name: str, files_with_language: Dict[str, str], max_timeout_secs: int) -> Dict[str, List[Violation]]:
@@ -89,6 +108,18 @@ def analyze_files(project_name: str, files_with_language: Dict[str, str], max_ti
     project_id = None
     files_to_analyze = files_with_language.keys()
     deadline = time.time() + max_timeout_secs
+    access_key: str = os.environ.get('CODE_INSPECTOR_ACCESS_KEY')
+    secret_key: str = os.environ.get('CODE_INSPECTOR_SECRET_KEY')
+
+    # Get the project identifier based on the project name
+    if project_name:
+        project_info = graphql_get_project_info(
+            access_key=access_key,
+            secret_key=secret_key,
+            project_name=project_name
+        )
+        if project_info:
+            project_id = int(project_info['id'])
 
     # Submit all threads to be executed.
     for filename in files_to_analyze:
@@ -120,7 +151,7 @@ def print_violations(files_with_violations: Dict[str, List[Violation]]):
     """
     for filename in files_with_violations.keys():
         for violation in files_with_violations[filename]:
-            logging.error("%s:%s %s", filename, violation.line, violation.description)
+            print("{0}:{1} {2}".format(filename, violation.line, violation.description), file=sys.stderr)
 
 
 def check_push(project_name: str, local_sha: str, remote_sha: str,
@@ -145,17 +176,29 @@ def check_push(project_name: str, local_sha: str, remote_sha: str,
     added_lines: Dict[str, Set[int]] = get_added_or_modified_lines(patch_set)
     files_to_analyze: Set[str] = set(added_lines.keys())
 
+    # Associate a file with a language.
+    # If a file does not match a language, just do not include it (can be binary blob,
+    # anything not analyzable by Code Inspector.
     files_with_languages: dict[str, str] = associate_files_with_language(files_to_analyze)
 
+    # First, analyze each file and get the list of violations.
     files_with_violations: Dict[str, List[Violation]] = analyze_files(project_name, files_with_languages, max_timeout_secs)
+
+    # Then, fileter the violations based on the list of excluded categories and severities passed as arguments.
     files_with_violations_filtered: Dict[str, List[Violation]] = {filename: filter_violations(violations, exclude_categories, exclude_severities) for filename, violations in files_with_violations.items()}
 
-    for violations in files_with_violations_filtered.values():
+    # Finally, filter the violations with the information with the diff. Only show the violations that have been
+    # added in the diff being pushed.
+    violations_per_file: Dict[str, List[Violation]] = {filename: filter_violations_for_diff(violations, added_lines.get(filename, [])) for filename, violations in files_with_violations_filtered.items()}
+
+    # Put all violations in an array so that we can know how many violations we have.
+    for violations in violations_per_file.values():
         all_violations.extend(violations)
 
+    # If we have violations, print them to show the users where you have violations
     if len(all_violations) > 0:
-        logging.error("*** Violations found ***")
-        print_violations(files_with_violations_filtered)
+        print("*** {0} violations found ***".format(len(all_violations)), file=sys.stderr)
+        print_violations(violations_per_file)
         logging.info("Detected %s violations", len(all_violations))
         sys.exit(1)
 
