@@ -1,5 +1,5 @@
-"""Start inspection of a repository using GitHub action and check if the projects
-meets quality criteria.
+"""Check the quality of a project for a given SHA. This tool is used to integrate Code Inspector
+with Continuous Integration Pipelines.
 
 Usage:
     code-inspector-check-quality [options]
@@ -25,7 +25,8 @@ import sys
 import time
 
 import docopt
-from code_inspector.common import do_graphql_query, is_grade_lower
+from code_inspector.common import is_grade_lower
+from .graphql.common import do_graphql_query
 from code_inspector.constants import DEFAULT_TIMEOUT
 from .version import __version__
 
@@ -156,7 +157,7 @@ def main(argv=None):
             log.info('CODE_INSPECTOR_SECRET_KEY not defined!')
             sys.exit(1)
 
-        if not secret_key:
+        if not project_name:
             log.info('Project name not defined')
             sys.exit(1)
 

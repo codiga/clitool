@@ -13,6 +13,7 @@ The following programs are being included:
  * `code-inspector-project`: get metrics about a project
  * `code-inspector-compare`: compare a project metrics against another projects or branches
  * `code-inspector-check-quality`: check the quality of a project for a particular revision
+ * `code-inspector-pre-commit-check`: script to invoke for a pre-commit hook to check that a commit has no issue
  * `code-inspector-github-action`: specific GitHub action for Code Inspector ([learn more here](https://github.com/codeinspectorio/github-action))
 
 
@@ -20,11 +21,20 @@ The following programs are being included:
 
 You can build and try the program using the following command:
 
+### Python 2
+
 ```bash
 python setup.py install --user
 ```
 
 You will then find binaries in `$HOME/.local/bin`, for example `$HOME/.local/bin/code-inspector-compare`.
+
+
+### Python 3
+
+```bash
+python3 setup.py install
+```
 
 ## Usage
 
@@ -140,6 +150,26 @@ These are the potential return code:
  * `5`: the target analysis has more violations than the source
  * `6`: the target analysis has more duplicates than the source
 
+## Git pre-push hooks
+
+In order to use the pre-push git hooks, edit your `.git/hooks/pre-push` file and add the following command:
+
+```bash
+code-inspector-pre-commit-check --project-name codeinspector-playground --remote-sha $remote_sha --local-sha $local_sha
+```
+
+The following variables should be defined by the script:
+
+ * `local_sha` represents the local SHA being pushed
+ * `remote_sha` represents the remote SHA at the beginning of this revision
+
+Notes that the following environment variables must be set to use the tool:
+
+ * `CODE_INSPECTOR_ACCESS_KEY`: access key related to your API access
+ * `CODE_INSPECTOR_SECRET_KEY`: secret key related to your API access
+
+
+There is an example of a `pre-push` hook available in [`docs/hooks/pre-push.sample`](docs/hooks/pre-push.sample).
 
 ## About Code Inspector
 

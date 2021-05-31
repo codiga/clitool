@@ -33,6 +33,7 @@ setup(
             'code-inspector-analyze = code_inspector.analyze:main',
             'code-inspector-github-action = code_inspector.github_action:main',
             'code-inspector-check-quality = code_inspector.check_quality:main',
+            'code-inspector-pre-commit-check = code_inspector.pre_commit_check:main',
             'code-inspector-compare = code_inspector.compare:main',
             'code-inspector-project = code_inspector.project:main'
         ],
