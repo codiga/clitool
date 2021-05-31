@@ -4,6 +4,7 @@ Utilities to interact with git.
 import logging
 import shutil
 import subprocess
+from typing import List
 
 from code_inspector.exceptions.GitCommandException import GitCommandException
 
@@ -18,7 +19,7 @@ def get_git_binary() -> str:
     return shutil.which("git")
 
 
-def execute_git_command(arguments: list[str]) -> str:
+def execute_git_command(arguments: List[str]) -> str:
     """
     Execute a git command with the arguments passed
     :param arguments: the arguments to pass to execute the git command
@@ -42,4 +43,3 @@ def get_diff(revision1: str, revision2: str):
     :return:
     """
     return execute_git_command([COMMAND_DIFF, revision1, revision2])
-
