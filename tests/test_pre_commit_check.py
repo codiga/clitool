@@ -42,6 +42,7 @@ class TestPreCommitCheck(unittest.TestCase):
                 'status': STATUS_DONE,
                 'violations': [
                     {
+                        'id': 42,
                         'line': 1,
                         'lineCount': 2,
                         'description': 'mydescription',
