@@ -10,6 +10,7 @@ GRADE_CRITICAL = "CRITICAL"
 GRADE_UNKNOWN = "UNKNOWN"
 GRADE_UNAVAILABLE = "UNAVAILABLE"
 
+
 def is_grade_lower(grade, minimum_grade):
     """
     return is a given grade is lower than a given grade.
