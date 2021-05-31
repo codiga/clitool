@@ -102,7 +102,7 @@ def get_analysis(access_key, secret_key, analysis_id):
         }
         """
     response_json = do_graphql_query(access_key, secret_key, {"query": query})
-    logging.info("Analysis response %s",response_json)
+    logging.info("Analysis response %s", response_json)
     return response_json['analysis']
 
 

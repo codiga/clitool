@@ -3,12 +3,16 @@ Test for methods in utils/test_file_utils.py
 """
 
 import unittest
+from typing import Set
 
 from code_inspector.utils.file_utils import LANGUAGE_C, LANGUAGE_JAVA, LANGUAGE_DOCKER, get_language_for_file, \
     associate_files_with_language
 
 
 class TestFileUtils(unittest.TestCase):
+    """
+    Test methods for the utils/file_utils.py
+    """
     def setUp(self):
         pass
 
@@ -31,7 +35,7 @@ class TestFileUtils(unittest.TestCase):
         files with no language
         :return:
         """
-        filenames: set[str] = set()
+        filenames: Set[str] = set()
         filenames.add("noextension")
         filenames.add("foobar.c")
         filenames.add("foobar.java")

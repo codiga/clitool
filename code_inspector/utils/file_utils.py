@@ -77,4 +77,3 @@ def associate_files_with_language(filenames: Set[str]) -> Dict[str, str]:
         if language:
             filenames_to_languages[filename] = language
     return filenames_to_languages
-

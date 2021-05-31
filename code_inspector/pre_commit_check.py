@@ -18,18 +18,17 @@ Example:
 Note:
     Make sure your API keys are defined using CODE_INSPECTOR_ACCESS_KEY and CODE_INSPECTOR_SECRET_KEY
 """
-import time
 from concurrent.futures import ThreadPoolExecutor
-from threading import Thread
-from time import sleep
-from typing import List, Dict, Set
-
-import docopt
 import os
 import logging
 import sys
+from threading import Thread
+import time
+from time import sleep
+from typing import List, Dict, Set
 
 from unidiff import PatchSet
+import docopt
 
 from .constants import BLANK_SHA
 from .graphql.constants import STATUS_DONE, STATUS_ERROR
@@ -63,8 +62,8 @@ def analyze_file(filename: str, language: str, project_id: int) -> List[Violatio
 
     # Read the file being pushed/sent
     try:
-        with open(filename, "r") as f:
-            code = f.read()
+        with open(filename, "r") as file:
+            code = file.read()
 
             file_analysis_id = graphql_create_file_analysis(
                 access_key=access_key,

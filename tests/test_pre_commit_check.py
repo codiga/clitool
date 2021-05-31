@@ -1,12 +1,14 @@
 import unittest
 from unittest.mock import patch
 
-from code_inspector.common import is_grade_lower
 from code_inspector.graphql.constants import STATUS_DONE
 from code_inspector.pre_commit_check import analyze_file
 
 
 class TestPreCommitCheck(unittest.TestCase):
+    """
+    Test pre_commit_check.py
+    """
     def setUp(self):
         pass
 

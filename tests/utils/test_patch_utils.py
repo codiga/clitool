@@ -6,12 +6,13 @@ import unittest
 
 from unidiff import PatchSet
 
-from code_inspector.utils.file_utils import LANGUAGE_C, LANGUAGE_JAVA, LANGUAGE_DOCKER, get_language_for_file, \
-    associate_files_with_language
 from code_inspector.utils.patch_utils import get_added_or_modified_lines
 
 
 class TestPatchUtils(unittest.TestCase):
+    """
+    Tests for utils/patch_utils.py
+    """
     def setUp(self):
         pass
 

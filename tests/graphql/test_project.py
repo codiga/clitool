@@ -10,6 +10,9 @@ from code_inspector.graphql.project import graphql_get_project_info
 
 
 class TestProject(unittest.TestCase):
+    """
+    Tests for graphql/project.py
+    """
     def setUp(self):
         pass
 
@@ -43,4 +46,3 @@ class TestProject(unittest.TestCase):
         data = graphql_get_project_info("accesskey", "secret_key", "project_name")
         do_graphql_query_mock.assert_called_with("accesskey", "secret_key", {'query': '\n        {\n          project(name:"project_name") {\n            id\n            name\n            public\n            description\n            status\n            owner{\n              username\n            }\n            level\n            analysesCount\n          }\n        }\n    '})
         self.assertIsNone(data)
-

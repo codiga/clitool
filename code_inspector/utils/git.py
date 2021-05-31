@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from typing import List
 
-from code_inspector.exceptions.GitCommandException import GitCommandException
+from code_inspector.exceptions.git_command_exception import GitCommandException
 
 COMMAND_DIFF = 'diff'
 
@@ -30,9 +30,8 @@ def execute_git_command(arguments: List[str]) -> str:
     process = subprocess.run(args, capture_output=True)
     if process.returncode == 0:
         return process.stdout.decode()
-    else:
-        logging.error(process.stderr)
-        raise GitCommandException("error when executing a git command")
+    logging.error(process.stderr)
+    raise GitCommandException("error when executing a git command")
 
 
 def get_diff(revision1: str, revision2: str):
