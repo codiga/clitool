@@ -7,8 +7,8 @@ from code_inspector.model.violation import Violation
 
 
 def filter_violations(violations: List[Violation],
-                      exclude_categories: list[str],
-                      exclude_severities: list[int]) -> List[Violation]:
+                      exclude_categories: List[str],
+                      exclude_severities: List[int]) -> List[Violation]:
     """
     Filter violations according to rules specified by the user.
     :param violations: all violations
