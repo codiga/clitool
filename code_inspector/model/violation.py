@@ -8,7 +8,7 @@ class Violation:
     Represent violation for a single file.
     """
     def __init__(self, **kwargs):
-        self.id = id
+        self.identifier = kwargs['id']
         self.line = kwargs['line']
         self.description = kwargs['description']
         self.severity = kwargs['severity']

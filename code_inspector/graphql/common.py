@@ -5,7 +5,7 @@ import requests
 
 from tenacity import retry, stop_after_attempt, wait_random
 
-from code_inspector import constants as constants
+from code_inspector import constants
 from code_inspector.common import log
 
 

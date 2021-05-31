@@ -9,6 +9,9 @@ from code_inspector.graphql.file_analysis import graphql_get_file_analysis, grap
 
 
 class TestFileAnalysis(unittest.TestCase):
+    """
+    Tests for graphql/file_analysis.py
+    """
     def setUp(self):
         pass
 

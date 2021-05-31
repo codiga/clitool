@@ -55,12 +55,12 @@ def get_language_for_file(filename: str) -> str:
     :param filename: the filename of the file
     :return: the language of the file
     """
-    for suffix in SUFFIX_TO_LANGUAGE.keys():
+    for suffix, language in SUFFIX_TO_LANGUAGE.items():
         if filename.endswith(suffix):
-            return SUFFIX_TO_LANGUAGE.get(suffix)
-    for prefix in PREFIX_TO_LANGUAGE.keys():
+            return language
+    for prefix, language in PREFIX_TO_LANGUAGE.items():
         if filename.startswith(prefix):
-            return PREFIX_TO_LANGUAGE.get(prefix)
+            return language
     return None
 
 
@@ -71,7 +71,7 @@ def associate_files_with_language(filenames: Set[str]) -> Dict[str, str]:
     :param filenames: the list of filenames
     :return: a dictionary that associates the filenames with their languages.
     """
-    filenames_to_languages: dict[str, str] = dict()
+    filenames_to_languages: Dict[str, str] = dict()
     for filename in filenames:
         language = get_language_for_file(filename)
         if language:

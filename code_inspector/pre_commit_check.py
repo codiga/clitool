@@ -139,7 +139,7 @@ def analyze_files(project_name: str,
         threads[filename] = thread
 
     # Wait for threads completion
-    for filename in threads.keys():
+    for filename in threads:
         while not threads[filename].done():
             sleep(0.5)
 
@@ -191,7 +191,7 @@ def check_push(project_name: str, local_sha: str, remote_sha: str,
     # Associate a file with a language.
     # If a file does not match a language, just do not include it (can be binary blob,
     # anything not analyzable by Code Inspector.
-    files_with_languages: dict[str, str] = associate_files_with_language(files_to_analyze)
+    files_with_languages: Dict[str, str] = associate_files_with_language(files_to_analyze)
 
     # First, analyze each file and get the list of violations.
     files_with_violations: Dict[str, List[Violation]] = analyze_files(project_name, files_with_languages, max_timeout_secs)
