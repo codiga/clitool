@@ -29,7 +29,8 @@ import sys
 import time
 
 import docopt
-from code_inspector.common import do_graphql_query, is_grade_lower
+from code_inspector.common import is_grade_lower
+from .graphql.common import do_graphql_query
 from code_inspector.constants import DEFAULT_TIMEOUT
 from .version import __version__
 

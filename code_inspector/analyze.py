@@ -18,7 +18,7 @@ import sys
 import time
 
 import docopt
-from code_inspector.common import do_graphql_query
+from .graphql.common import do_graphql_query
 from code_inspector.constants import DEFAULT_TIMEOUT
 from .version import __version__
 

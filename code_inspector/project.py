@@ -15,7 +15,7 @@ import logging
 import sys
 
 import docopt
-from code_inspector.common import do_graphql_query
+from .graphql.common import do_graphql_query
 
 from .version import __version__
 
