@@ -48,7 +48,7 @@ def graphql_get_file_analysis(access_key: str, secret_key: str, file_analysis_id
     :param file_analysis_id: the identifier of the file analysis to get
     :return: the file analysis object and it's violations
     """
-    if not file_analysis_id:
+    if not access_key or not secret_key or not file_analysis_id:
         raise ValueError
 
     query = """
@@ -74,4 +74,5 @@ def graphql_get_file_analysis(access_key: str, secret_key: str, file_analysis_id
       }
     }
     """
-    return do_graphql_query(access_key, secret_key, {"query": query})
+    data = do_graphql_query(access_key, secret_key, {"query": query})
+    return data

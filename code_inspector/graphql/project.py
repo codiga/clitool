@@ -32,7 +32,10 @@ def graphql_get_project_info(access_key: str, secret_key: str, project_name: str
         }
     """
     data = do_graphql_query(access_key, secret_key, {"query": query})
-    return data['project']
+    if 'project' in data:
+        return data['project']
+    else:
+        return None
 
 
 def graphql_get_file_analysis(access_key: str, secret_key: str, file_analysis_id: int):

@@ -51,6 +51,7 @@ def analyze_file(filename: str, language: str, project_id: int) -> List[Violatio
     """
     Analyze a file using a GraphQL query
     :param project_id: the identifier of the project to analyze
+    :param language: language of the file
     :param filename: the name of the filename
     :return: the list of violations found
     """
@@ -61,17 +62,21 @@ def analyze_file(filename: str, language: str, project_id: int) -> List[Violatio
     file_analysis_id: int = None
 
     # Read the file being pushed/sent
-    with open(filename, "r") as f:
-        code = f.read()
+    try:
+        with open(filename, "r") as f:
+            code = f.read()
 
-        file_analysis_id = graphql_create_file_analysis(
-            access_key=access_key,
-            secret_key=secret_key,
-            filename=filename,
-            language=language,
-            project_id=project_id,
-            content=code
-        )
+            file_analysis_id = graphql_create_file_analysis(
+                access_key=access_key,
+                secret_key=secret_key,
+                filename=filename,
+                language=language,
+                project_id=project_id,
+                content=code
+            )
+    except FileNotFoundError:
+        logging.error("Cannot open file %s", filename)
+        return violations
 
     # Make the analysis on Code Inspector and wait for the analysis to complete.
     while True:
@@ -118,6 +123,11 @@ def analyze_files(project_name: str, files_with_language: Dict[str, str], max_ti
             secret_key=secret_key,
             project_name=project_name
         )
+
+        if not project_info:
+            print("Project {0} not found".format(project_name), file=sys.stderr)
+            sys.exit(2)
+
         if project_info:
             project_id = int(project_info['id'])
 
