@@ -38,7 +38,7 @@ setup(
             'code-inspector-project = code_inspector.project:main'
         ],
     },
-    install_requires=['docopt>=0.6.1', 'requests>=2.4.2'],
+    install_requires=['docopt>=0.6.2', 'requests>=2.25.1', "unidiff>=0.6.0", "tenacity>=7.0.0"],
     extras_require={
         'yaml': ['PyYAML>=3.10'],
         ':python_version < "3"': ['urllib3[secure]'],
@@ -50,8 +50,6 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',

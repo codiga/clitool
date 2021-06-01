@@ -31,3 +31,21 @@ To run the tests, just enter the following command.
 ```shell
 PYTHONPATH=. python3 -m unittest discover tests
 ```
+
+### Publishing new version
+
+Step 1: bump the version in `code_inspector/version.py` on the master branch
+
+Step 2: Commit the code
+
+```bash
+git commit -a
+git push
+```
+
+Step 3: merge master in production
+
+```bash
+git checkout production
+git merge master
+```
