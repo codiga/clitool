@@ -22,9 +22,10 @@ import os
 import json
 import logging
 import sys
+import time
 
 import docopt
-import time
+
 
 import code_inspector.constants as constants
 from .graphql.common import do_graphql_query
@@ -54,7 +55,7 @@ def get_project_id(access_key, secret_key, project_name):
         """
         response_json = do_graphql_query(access_key, secret_key, {"query": query})
         return response_json["project"]["id"]
-    except Exception:
+    except KeyError:
         log.error("Error while getting project identifier")
         return None
 
@@ -91,7 +92,7 @@ def start_compare_analysis(access_key, secret_key, project_id, kind, url, userna
 
         response_json = do_graphql_query(access_key, secret_key, {"query": query})
         return response_json["createCompareAnalysis"]["id"]
-    except Exception:
+    except KeyError:
         log.error("Error while starting new analysis")
         return None
 
@@ -120,7 +121,7 @@ def poll_compare_analysis(access_key, secret_key, compare_analysis_id, timeout):
             continue
 
         if not compare_analysis['status'].upper() in ["DONE", "ERROR"]:
-            log.debug("compare analysis in status %s",compare_analysis['status'])
+            log.debug("compare analysis in status %s", compare_analysis['status'])
             continue
 
         if not compare_analysis['sourceAnalysis']:
@@ -140,7 +141,7 @@ def poll_compare_analysis(access_key, secret_key, compare_analysis_id, timeout):
 
         if source_status.upper() not in ["DONE", "ERROR", "SAME_REVISION"] or target_status.upper() not in ["DONE", "ERROR", "SAME_REVISION"]:
             log.error("source analysis or target analysis are not done successfully. source status = %s, "
-                      "target status = %s",source_analysis['status'], target_analysis['status'])
+                      "target status = %s", source_analysis['status'], target_analysis['status'])
             continue
 
         if source_status.upper() == "ERROR":
@@ -260,7 +261,7 @@ def main(argv=None):
             sys.exit(3)
 
         ret = poll_compare_analysis(access_key, secret_key, compare_analysis_id, timeout)
-        log.debug("done, returning {0}".format(ret))
+        log.debug("done, returning %s", ret)
         sys.exit(ret)
     except KeyboardInterrupt:  # pragma: no cover
         log.info('Aborted')

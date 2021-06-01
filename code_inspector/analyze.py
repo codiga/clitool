@@ -18,8 +18,9 @@ import sys
 import time
 
 import docopt
+
+from .constants import DEFAULT_TIMEOUT
 from .graphql.common import do_graphql_query
-from code_inspector.constants import DEFAULT_TIMEOUT
 from .version import __version__
 
 logging.basicConfig()
