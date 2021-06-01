@@ -1,22 +1,20 @@
-name: Test and Build
-
-on: [push]
-
+name: Publish package
+on:
+  push:
+    branches:
+      - production
 jobs:
   build-test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [ 3.6, 3.7, 3.8, 3.9 ]
     name: Build, test (and publish if push on production)
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     # Sets up python
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.9
     - name: "Installs and upgrades pip, installs other dependencies and installs the package from setup.py"
       run: |
         # Upgrade pip
@@ -35,4 +33,12 @@ jobs:
     - name: Package
       run: |
         python3 setup.py sdist bdist_wheel
+
+    - name: Publish a Python distribution to PyPI
+      if: ${{ github.ref == 'refs/heads/production' }}
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+
 
