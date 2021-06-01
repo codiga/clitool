@@ -8,37 +8,37 @@ jobs:
     runs-on: ubuntu-latest
     name: Build, test (and publish if push on production)
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    # Sets up python
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
-    - name: "Installs and upgrades pip, installs other dependencies and installs the package from setup.py"
-      run: |
-        # Upgrade pip
-        python -m pip install --upgrade pip
-        # Install build deps
-        python -m pip install setuptools wheel twine
-        # If requirements.txt exists, install from it
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Checkout code
+        uses: actions/checkout@v2
+      # Sets up python
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: "Installs and upgrades pip, installs other dependencies and installs the package from setup.py"
+        run: |
+          # Upgrade pip
+          python -m pip install --upgrade pip
+          # Install build deps
+          python -m pip install setuptools wheel twine
+          # If requirements.txt exists, install from it
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    # Tests with unittest
-    - name: Test with unittest
-      run: |
-        PYTHONPATH=. python -m unittest discover tests
+      # Tests with unittest
+      - name: Test with unittest
+        run: |
+          PYTHONPATH=. python -m unittest discover tests
 
-    # Package everything
-    - name: Package
-      run: |
-        python3 setup.py sdist bdist_wheel
+      # Package everything
+      - name: Package
+        run: |
+          python3 setup.py sdist bdist_wheel
 
-    - name: Publish a Python distribution to PyPI
-      if: ${{ github.ref == 'refs/heads/production' }}
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Publish a Python distribution to PyPI
+        if: ${{ github.ref == 'refs/heads/production' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
 
 

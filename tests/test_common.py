@@ -3,7 +3,10 @@ import unittest
 from code_inspector.common import is_grade_lower
 
 
-class TestModel(unittest.TestCase):
+class TestCommon(unittest.TestCase):
+    """
+    Test code from common.py
+    """
     def setUp(self):
         pass
 

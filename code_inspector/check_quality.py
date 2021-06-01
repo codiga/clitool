@@ -26,8 +26,9 @@ import time
 
 import docopt
 from code_inspector.common import is_grade_lower
-from .graphql.common import do_graphql_query
 from code_inspector.constants import DEFAULT_TIMEOUT
+
+from .graphql.common import do_graphql_query
 from .version import __version__
 
 logging.basicConfig()
@@ -101,7 +102,7 @@ def get_analysis_by_revision(access_key, secret_key, project_name, revision):
         }
         """
     response_json = do_graphql_query(access_key, secret_key, {"query": query})
-    logging.info("Analysis response {0}".format(response_json))
+    logging.info("Analysis response %s", response_json)
     return response_json['project']
 
 
@@ -134,7 +135,7 @@ def main(argv=None):
     log.setLevel(logging.INFO)
 
     log.info("Invoking code-inspector-check-quality with the following parameters")
-    log.info("\_o<                (parameters)                >o_<")
+    log.info("                    (parameters)                    ")
     log.info("sha: %s", sha)
     log.info("project_name: %s", project_name)
     log.info("min_quality_score_argument: %s", min_quality_score_argument)
@@ -143,7 +144,7 @@ def main(argv=None):
     log.info("max_complex_functions_rate_argument: %s", max_complex_functions_rate_argument)
     log.info("max_long_functions_rate_argument: %s", max_long_functions_rate_argument)
     log.info("custom_timeout_sec: %s", custom_timeout_sec)
-    log.info("\_o<                  (starting)                >o_<")
+    log.info("                      (starting)                    ")
 
     try:
         access_key = os.environ.get('CODE_INSPECTOR_ACCESS_KEY')
