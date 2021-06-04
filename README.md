@@ -12,7 +12,7 @@ The following programs are being included:
  * `code-inspector-project`: get metrics about a project
  * `code-inspector-compare`: compare a project metrics against another projects or branches
  * `code-inspector-check-quality`: check the quality of a project for a particular revision
- * `code-inspector-pre-commit-check`: script to invoke for a pre-commit hook to check that a commit has no issue
+ * `code-inspector-pre-hook-check`: script to invoke for a pre-push hook to check that a commit has no issue before pushing to your git repo
  * `code-inspector-github-action`: specific GitHub action for Code Inspector ([learn more here](https://github.com/codeinspectorio/github-action))
 
 
@@ -150,12 +150,12 @@ These are the potential return code:
  * `5`: the target analysis has more violations than the source
  * `6`: the target analysis has more duplicates than the source
 
-## Git pre-push hooks
+## Git pre-hooks
 
 In order to use the pre-push git hooks, edit your `.git/hooks/pre-push` file and add the following command:
 
 ```bash
-code-inspector-pre-commit-check --project-name codeinspector-playground --remote-sha $remote_sha --local-sha $local_sha
+code-inspector-pre-hook-check --project-name codeinspector-playground --remote-sha $remote_sha --local-sha $local_sha
 ```
 
 The following variables should be defined by the script:

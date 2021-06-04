@@ -4,7 +4,6 @@ Code Inspector.
 Usage:
     code-inspector-pre-commit-check [options]
 
-
 Global options:
     --exclude-categories <list-of-strings>  Violations with categories you want to exclude
     --exclude-severities <list-of-integer>  Violations which severities you want to ignore separated by commas
@@ -12,6 +11,7 @@ Global options:
     --local-sha <string>                    The local SHA being pushed
     --project-name <string>                 Name of the project on Code Inspector
     --max-timeout-sec <timeout>             Maximum time to wait before the analysis is done (in secs). Default to 60.
+
 Example:
     $ code-inspector-pre-commit-check -p "MY SUPER PROJECT" --local-sha <sha1> --remote-sha <sha2> --exclude-categories=Documentation --exclude-severities 3,4
 
@@ -36,7 +36,7 @@ from .graphql.file_analysis import graphql_create_file_analysis, graphql_get_fil
 from .graphql.project import graphql_get_project_info
 from .model.violation import Violation
 from .utils.file_utils import associate_files_with_language
-from .utils.git import get_git_binary, get_diff
+from .utils.git import get_git_binary, get_diff, find_closest_sha
 from .utils.patch_utils import get_added_or_modified_lines
 from .utils.violation_utils import filter_violations, filter_violations_for_diff
 from .version import __version__
@@ -180,7 +180,15 @@ def check_push(project_name: str, local_sha: str, remote_sha: str,
     """
     # If the remote sha does not exist, we do not check this revision.
     if remote_sha == BLANK_SHA:
-        return
+        print("Push seems to originate from a new branch, trying to find ancestor commit.")
+        remote_sha = find_closest_sha()
+        if not remote_sha:
+            print("Tried to find closest SHA but did not found any. Returning 0", file=sys.stderr)
+            sys.exit(0)
+
+    if remote_sha == local_sha:
+        print("Remote and local sha are the same ({0}), skipping verification".format(remote_sha), file=sys.stderr)
+        sys.exit(0)
 
     all_violations: List[Violation] = []
     diff_content = get_diff(remote_sha, local_sha)
@@ -192,6 +200,12 @@ def check_push(project_name: str, local_sha: str, remote_sha: str,
     # If a file does not match a language, just do not include it (can be binary blob,
     # anything not analyzable by Code Inspector.
     files_with_languages: Dict[str, str] = associate_files_with_language(files_to_analyze)
+
+    # Show the list of files to analyze
+    if len(files_with_languages) > 0:
+        print("Analyzing {0} files: {1}".format(len(files_with_languages), ",".join(files_with_languages)))
+    else:
+        print("No file to analyze")
 
     # First, analyze each file and get the list of violations.
     files_with_violations: Dict[str, List[Violation]] = analyze_files(project_name, files_with_languages, max_timeout_secs)
@@ -235,7 +249,6 @@ def main(argv=None):
     secret_key: str = os.environ.get('CODE_INSPECTOR_SECRET_KEY')
     exclude_severities_list: List[str] = []
     exclude_categories_list: List[str] = []
-
     if not access_key:
         log.error('CODE_INSPECTOR_ACCESS_KEY environment variable not defined!')
         sys.exit(1)
@@ -276,7 +289,7 @@ def main(argv=None):
         try:
             max_timeout_sec_int = int(max_timeout_sec)
         except ValueError:
-            print("timeout value should be an integer")
+            print("timeout value should be an integer", file=sys.stderr)
             sys.exit(2)
 
     # Convert the severity list into list of int
@@ -284,7 +297,7 @@ def main(argv=None):
         try:
             exclude_severities_list_int.append(int(severity))
         except ValueError:
-            print("excluded severities should be an int")
+            print("excluded severities should be an int", file=sys.stderr)
             sys.exit(2)
 
     check_push(
