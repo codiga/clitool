@@ -37,6 +37,7 @@ def get_main_branch() -> Optional[str]:
             if "HEAD branch:" in line:
                 branch = line[line.index(":")+2:].strip('\n').strip()
                 return branch
+        return None
     except GitCommandException:
         logging.error("Cannot find the current branch")
         return None
