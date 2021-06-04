@@ -4,7 +4,6 @@
 
 # Code-Inspector Continuous Integration Tool
 
-
 These are various Python tools used to use the [code-inspector](https://www.code-inspector.com)
 engine in a continuous integration pipeline and compare analysis.
 
