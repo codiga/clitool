@@ -38,7 +38,7 @@ python3 setup.py install
 
 ## Usage
 
-You need to set your API keys with environment variables:
+You need to set your API token with environment variables:
 
  * `CODE_INSPECTOR_ACCESS_KEY`: your access key API generated from your project preferences
  * `CODE_INSPECTOR_SECRET_KEY`: your secret key API generated from your project preferences

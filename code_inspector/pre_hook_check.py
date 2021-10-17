@@ -187,7 +187,8 @@ def check_push(project_name: str, local_sha: str, remote_sha: str,
             sys.exit(0)
 
     if remote_sha == local_sha:
-        print("Remote and local sha are the same ({0}), skipping verification".format(remote_sha), file=sys.stderr)
+        print("Remote and local sha are the same ({0}), skipping verification"
+              .format(remote_sha), file=sys.stderr)
         sys.exit(0)
 
     all_violations: List[Violation] = []

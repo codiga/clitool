@@ -1,3 +1,7 @@
+# 0.0.16 (2021-10-17)
+
+* No longer require --sha
+
 # 0.0.12 (2021-05-28)
 
  * Fixing bugs for code-inspector-check-quality

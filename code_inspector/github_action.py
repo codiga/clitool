@@ -33,7 +33,7 @@ import docopt
 from code_inspector.common import is_grade_lower
 
 from .constants import DEFAULT_TIMEOUT
-from .graphql.common import do_graphql_query
+from .graphql.common import do_graphql_query, do_graphql_query_with_api_token
 from .version import __version__
 
 logging.basicConfig()
@@ -41,11 +41,12 @@ logging.basicConfig()
 log = logging.getLogger('code-inspector')
 
 
-def start_analysis(access_key, secret_key, token, actor, repository, sha, ref, project_name):
+def start_analysis(access_key, secret_key, api_token, token, actor, repository, sha, ref, project_name):
     """
     Get the project information with the latest analysis data using the project name
     :param access_key: the access key to the GraphQL API
     :param secret_key: the secret key to the GraphQL API
+    :param api_token: the api token to the GraphQL API
     :param token: the token to use to analyze the project (used to checkout the repository).
     :param actor: GitHub username that initiated the request
     :param repository: GitHub repository name.
@@ -62,10 +63,15 @@ def start_analysis(access_key, secret_key, token, actor, repository, sha, ref, p
     args.append("token: \"" + token + "\"")
     args.append("actor: \"" + actor + "\"")
     args.append("repositoryName: \"" + repository + "\"")
-    args.append("sha: \"" + sha + "\"")
+    if sha is not None and len(sha) > 0 and sha != "none":
+        args.append("sha: \"" + sha + "\"")
     args_string = ",".join(args)
     query = """mutation {githubAction(""" + args_string + """){id}}"""
-    response_json = do_graphql_query(access_key, secret_key, {"query": query})
+
+    if api_token:
+        response_json = do_graphql_query_with_api_token(api_token, {"query": query})
+    else:
+        response_json = do_graphql_query(access_key, secret_key, {"query": query})
 
     if not response_json:
         return None
@@ -159,14 +165,17 @@ def main(argv=None):
     try:
         access_key = os.environ.get('CODE_INSPECTOR_ACCESS_KEY')
         secret_key = os.environ.get('CODE_INSPECTOR_SECRET_KEY')
+        api_token = os.environ.get('CODE_INSPECTOR_API_TOKEN')
 
-        if not access_key:
-            log.info('CODE_INSPECTOR_ACCESS_KEY environment variable not defined!')
-            sys.exit(1)
+        # API Token must be defined. If not, we rely on the old access key/secret key.
+        if not api_token:
+            if not access_key:
+                log.info('CODE_INSPECTOR_ACCESS_KEY environment variable not defined!')
+                sys.exit(1)
 
-        if not secret_key:
-            log.info('CODE_INSPECTOR_SECRET_KEY not defined!')
-            sys.exit(1)
+            if not secret_key:
+                log.info('CODE_INSPECTOR_SECRET_KEY not defined!')
+                sys.exit(1)
 
         if not token:
             log.info('GitHub token required')
@@ -178,10 +187,6 @@ def main(argv=None):
 
         if not repository:
             log.info('GitHub repository required')
-            sys.exit(1)
-
-        if not sha:
-            log.info('GitHub SHA required')
             sys.exit(1)
 
         # Filter argument and bad values.
@@ -205,7 +210,8 @@ def main(argv=None):
         else:
             max_long_functions_rate = None
 
-        analysis = start_analysis(access_key, secret_key, token, actor, repository, sha, ref, project_name)
+        analysis = start_analysis(access_key, secret_key, api_token, token,
+                                  actor, repository, sha, ref, project_name)
 
         if not analysis:
             log.error("Cannot start new analysis")
