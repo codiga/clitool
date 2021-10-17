@@ -163,6 +163,11 @@ The following variables should be defined by the script:
  * `local_sha` represents the local SHA being pushed
  * `remote_sha` represents the remote SHA at the beginning of this revision
 
+The tool lets you ignore violations according to their categories and severities using options
+
+ * `--exclude-severities` lets you ignore violations based on their severities (example: `--exclude-severities=3,4` to ignore severities `3` and `4`).
+ * `--exclude-categories` lets you ignore violations based on their categories (example: `--exclude-categories=design,security`)
+
 Notes that the following environment variables must be set to use the tool:
 
  * `CODE_INSPECTOR_ACCESS_KEY`: access key related to your API access
