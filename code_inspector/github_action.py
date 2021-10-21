@@ -174,8 +174,8 @@ def main(argv=None):
         api_token = os.environ.get('CODE_INSPECTOR_API_TOKEN')
 
         # API Token must be defined. If not, we rely on the old access key/secret key.
-        log.info('CODE_INSPECTOR_API_TOKEN environment variable not defined, trying to use access-key or secret-key')
         if not api_token:
+            log.info('CODE_INSPECTOR_API_TOKEN environment variable not defined, trying to use access-key or secret-key')
             if not access_key:
                 log.info('CODE_INSPECTOR_ACCESS_KEY environment variable not defined!')
                 sys.exit(1)
