@@ -69,8 +69,10 @@ def start_analysis(access_key, secret_key, api_token, token, actor, repository, 
     query = """mutation {githubAction(""" + args_string + """){id}}"""
 
     if api_token:
+        log.info("starting analysis using api token")
         response_json = do_graphql_query_with_api_token(api_token, {"query": query})
     else:
+        log.info("starting analysis using access/secret keys")
         response_json = do_graphql_query(access_key, secret_key, {"query": query})
 
     if not response_json:
@@ -79,11 +81,12 @@ def start_analysis(access_key, secret_key, api_token, token, actor, repository, 
     return response_json['githubAction']
 
 
-def get_analysis(access_key, secret_key, analysis_id):
+def get_analysis(access_key, secret_key, api_token, analysis_id):
     """
     Get an analysis using its ID
     :param access_key: access key to poll the API
     :param secret_key: secret key to poll the API
+    :param api_token: the API token to access code inspector
     :param analysis_id: the identifier of the analysis we want to poll
     :return: the return code depending on the results or some processing error
     """
@@ -109,7 +112,10 @@ def get_analysis(access_key, secret_key, analysis_id):
           }
         }
         """
-    response_json = do_graphql_query(access_key, secret_key, {"query": query})
+    if api_token:
+        response_json = do_graphql_query_with_api_token(api_token, {"query": query})
+    else:
+        response_json = do_graphql_query(access_key, secret_key, {"query": query})
     logging.info("Analysis response %s", response_json)
     return response_json['analysis']
 
@@ -168,6 +174,7 @@ def main(argv=None):
         api_token = os.environ.get('CODE_INSPECTOR_API_TOKEN')
 
         # API Token must be defined. If not, we rely on the old access key/secret key.
+        log.info('CODE_INSPECTOR_API_TOKEN environment variable not defined, trying to use access-key or secret-key')
         if not api_token:
             if not access_key:
                 log.info('CODE_INSPECTOR_ACCESS_KEY environment variable not defined!')
@@ -227,7 +234,7 @@ def main(argv=None):
                 log.error("Deadline expired")
                 sys.exit(1)
 
-            poll_analysis = get_analysis(access_key, secret_key, analysis_id)
+            poll_analysis = get_analysis(access_key, secret_key, api_token, analysis_id)
             if poll_analysis is None or poll_analysis['status'].upper() not in ["DONE", "ERROR", "SAME_REVISION"]:
                 log.debug("analysis not completed yet")
                 time.sleep(5)

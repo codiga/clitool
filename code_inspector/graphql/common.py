@@ -40,6 +40,7 @@ def do_graphql_query_with_api_token(api_token, payload):
     """
     headers = {"X-Api-Token": api_token}
     response = requests.post(constants.GRAPHQL_ENDPOINT_URL, json=payload, headers=headers)
+    print(response.json())
     if response.status_code != 200:
         log.error('Failed to send GraphQL query to Code Inspector API')
         return None

@@ -1,3 +1,7 @@
+# 0.0.17 (2021-10-21)
+
+* Handle API token
+
 # 0.0.16 (2021-10-17)
 
 * No longer require --sha
