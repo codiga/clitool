@@ -1,3 +1,7 @@
+# 0.0.18 (2021-10-25)
+
+* Minor bugfixing on printing, show revision during results
+
 # 0.0.17 (2021-10-21)
 
 * Handle API token

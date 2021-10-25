@@ -96,6 +96,7 @@ def get_analysis(access_key, secret_key, api_token, analysis_id):
           analysis(id: """ + str(analysis_id) + """){
             id
             status
+            revision
             slocs
             techdebt{
               grade
@@ -243,6 +244,7 @@ def main(argv=None):
             print(json.dumps(poll_analysis, indent=4))
 
             analysis_slocs = int(poll_analysis['slocs'])
+            revision = poll_analysis['revision']
             analysis_violations = int(poll_analysis['summary']['violations'])
             analysis_complex_functions = int(poll_analysis['summary']['complexFunctions'])
             analysis_long_functions = int(poll_analysis['summary']['longFunctions'])
@@ -264,6 +266,7 @@ def main(argv=None):
                 analysis_long_function_rate = 0
                 analysis_violations_rate = 0
 
+            logging.info("revision: %s", revision)
             logging.info("analysis_score: %s", analysis_score)
             logging.info("analysis_grade: %s", analysis_grade)
             logging.info("analysis_violations_rate: %s", analysis_violations_rate)
