@@ -6,7 +6,7 @@ import unittest
 
 from unidiff import PatchSet
 
-from code_inspector.utils.patch_utils import get_added_or_modified_lines
+from codiga.utils.patch_utils import get_added_or_modified_lines
 
 
 class TestPatchUtils(unittest.TestCase):

@@ -3,7 +3,7 @@ Functions to help manage violations.
 """
 from typing import List
 
-from code_inspector.model.violation import Violation
+from codiga.model.violation import Violation
 
 
 def filter_violations(violations: List[Violation],

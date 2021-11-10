@@ -5,7 +5,7 @@ Test for methods in utils/test_file_utils.py
 import unittest
 from typing import Set
 
-from code_inspector.utils.file_utils import LANGUAGE_C, LANGUAGE_JAVA, LANGUAGE_DOCKER, get_language_for_file, \
+from codiga.utils.file_utils import LANGUAGE_C, LANGUAGE_JAVA, LANGUAGE_DOCKER, get_language_for_file, \
     associate_files_with_language
 
 

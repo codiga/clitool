@@ -1,12 +1,12 @@
 """Get the status of a project on Code-Inspector
 
 Usage:
-    code-inspector-project [options]
+    codiga-project [options]
 
 Global options:
     -p PROJECT_NAME          Project name to show
 Example:
-    $ code-inspector-project -p "MY SUPER PROJECT"
+    $ codiga-project -p "MY SUPER PROJECT"
 """
 
 import os
@@ -15,18 +15,19 @@ import logging
 import sys
 
 import docopt
+
+from .constants import API_TOKEN_ENVIRONMENT_VARIABLE
 from .graphql.common import do_graphql_query
 
 from .version import __version__
 
-log = logging.getLogger('code-inspector')
+log = logging.getLogger('codiga')
 
 
-def get_project_information(access_key: str, secret_key: str, project_name: str) -> dict:
+def get_project_information(api_token: str, project_name: str) -> dict:
     """
     Get the project information with the latest analysis data using the project name
-    :param access_key: the access key to the GraphQL API
-    :param secret_key: the secret key to the GraphQL API
+    :param api_token: the api token to the GraphQL API
     :param project_name: name of the project
     :return: the project identifier or None is exception or non-existent project.
     """
@@ -68,7 +69,7 @@ def get_project_information(access_key: str, secret_key: str, project_name: str)
         }
     }
     """
-    response_json = do_graphql_query(access_key, secret_key, {"query": query})
+    response_json = do_graphql_query(api_token, {"query": query})
     return response_json['project']
 
 
@@ -86,22 +87,17 @@ def main(argv=None):
     log.setLevel(logging.INFO)
 
     try:
-        access_key = os.environ.get('CODE_INSPECTOR_ACCESS_KEY')
-        secret_key = os.environ.get('CODE_INSPECTOR_SECRET_KEY')
-
-        if not access_key:
-            log.info('CODE_INSPECTOR_ACCESS_KEY environment variable not defined!')
-            sys.exit(1)
-
-        if not secret_key:
-            log.info('CODE_INSPECTOR_SECRET_KEY not defined!')
-            sys.exit(1)
+        api_token = os.environ.get(API_TOKEN_ENVIRONMENT_VARIABLE)
 
         if not project_name:
             log.info('Project name not defined!')
             sys.exit(1)
 
-        project_information = get_project_information(access_key, secret_key, project_name)
+        if not api_token:
+            log.info('API Token not defined!')
+            sys.exit(1)
+
+        project_information = get_project_information(api_token, project_name)
         if not project_information:
             log.error("Cannot get project information")
             sys.exit(1)

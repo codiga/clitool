@@ -1,19 +1,19 @@
-[![Code Grade](https://www.code-inspector.com/project/183/status/svg)](https://www.code-inspector.com/public/project/183/Code%20Inspector%20CI%20Tools/dashboard)
-[![Build Status](https://travis-ci.org/codeinspectorio/citool.svg?branch=master)](https://travis-ci.org/codeinspectorio/citool)
+[![Code Grade](https://www.code-inspector.com/project/29691/status/svg)](https://frontend.code-inspector.com/public/project/29691/clitool/dashboard)
+[![Code Quality](https://www.code-inspector.com/project/29691/score/svg)](https://frontend.code-inspector.com/public/project/29691/clitool/dashboard)
 
 
-# Code-Inspector Continuous Integration Tool
+# Codiga Continuous Integration Tool
 
-These are various Python tools used to use the [code-inspector](https://www.code-inspector.com)
+These are various Python tools used to use the [codiga](https://www.codiga.io)
 engine in a continuous integration pipeline and compare analysis.
 
 The following programs are being included:
 
- * `code-inspector-project`: get metrics about a project
- * `code-inspector-compare`: compare a project metrics against another projects or branches
- * `code-inspector-check-quality`: check the quality of a project for a particular revision
- * `code-inspector-pre-hook-check`: script to invoke for a pre-push hook to check that a commit has no issue before pushing to your git repo
- * `code-inspector-github-action`: specific GitHub action for Code Inspector ([learn more here](https://github.com/codeinspectorio/github-action))
+ * `codiga-project`: get metrics about a project
+ * `codiga-compare`: compare a project metrics against another projects or branches
+ * `codiga-check-quality`: check the quality of a project for a particular revision
+ * `codiga-pre-hook-check`: script to invoke for a pre-push hook to check that a commit has no issue before pushing to your git repo
+ * `codiga-github-action`: specific GitHub action for Codiga ([learn more here](https://github.com/codiga/github-action))
 
 
 ## Build
@@ -27,7 +27,7 @@ You can build and try the program using the following command:
 python setup.py install --user
 ```
 
-You will then find binaries in `$HOME/.local/bin`, for example `$HOME/.local/bin/code-inspector-compare`.
+You will then find binaries in `$HOME/.local/bin`, for example `$HOME/.local/bin/codiga-compare`.
 
 
 ### Python 3
@@ -40,13 +40,11 @@ python3 setup.py install
 
 You need to set your API token with environment variables:
 
- * `CODE_INSPECTOR_ACCESS_KEY`: your access key API generated from your project preferences
- * `CODE_INSPECTOR_SECRET_KEY`: your secret key API generated from your project preferences
+ * `CODIGA_API_TOKEN`: your API token generated from your account
 
 On a terminal, you would set them up like this:
 ```bash
-export CODE_INSPECTOR_ACCESS_KEY=<INSERT-YOUR-API-ACCESS-KEY-HERE>
-export CODE_INSPECTOR_SECRET_KEY=<INSERT-YOUR-API-SECRET-KEY-HERE>
+export CODIGA_API_TOKEN=<INSERT-YOUR-API-TOKEN-HERE>
 ```
 
 ### Project information tool
@@ -56,13 +54,13 @@ Get general information about a project.
 Invoke the tool as follow:
 
 ```bash
-code-inspector-project -p <PROJECT_NAME>
+codiga-project -p <PROJECT_NAME>
 ```
 
 For example:
 
 ```bash
-code-inspector-project -p "mergify integration"
+codiga-project -p "mergify integration"
 ```
 
 This is an example of the execution results:
@@ -89,10 +87,10 @@ The compare tool is used to compare a project with another repository.
 Invoke the tool as follow:
 
 ```bash
-code-inspector-compare -p "mergify integration" --kind <REPOSITORY_KIND> --url <URL_TO_OTHER_REPOSITORY> --target-branch=<BRANCH> --target-revision=<REVISION>
+codiga-compare -p "mergify integration" --kind <REPOSITORY_KIND> --url <URL_TO_OTHER_REPOSITORY> --target-branch=<BRANCH> --target-revision=<REVISION>
 ```
 
-This command will compare the project `mergify integration` on code inspector with the project located
+This command will compare the project `mergify integration` on codiga with the project located
 at the URL `<URL_TO_OTHER_REPOSITORY>`.
 
 When the tool successfully executes, it reports the execution in a JSON object.
@@ -131,7 +129,7 @@ These are the explanation for the other parameters:
 The `kind` argument is used to define how the target repository will be fetched.
 Based on the value, we use credentials from the authenticated user to clone the repository.
 For example, if you specify `Github`, the target repository will be cloned using the github credentials
-of the authenticated user. If the user does not have any registered credentials on [Code Inspector](https://www.code-inspector.com),
+of the authenticated user. If the user does not have any registered credentials on [Codiga](https://www.codiga.io),
 analysis will fail.
 
 These are the valid values for the `kind` argument:
@@ -155,7 +153,7 @@ These are the potential return code:
 In order to use the pre-push git hooks, edit your `.git/hooks/pre-push` file and add the following command:
 
 ```bash
-code-inspector-pre-hook-check --project-name codeinspector-playground --remote-sha $remote_sha --local-sha $local_sha
+codiga-pre-hook-check --project-name codeinspector-playground --remote-sha $remote_sha --local-sha $local_sha
 ```
 
 The following variables should be defined by the script:
@@ -170,15 +168,14 @@ The tool lets you ignore violations according to their categories and severities
 
 Notes that the following environment variables must be set to use the tool:
 
- * `CODE_INSPECTOR_ACCESS_KEY`: access key related to your API access
- * `CODE_INSPECTOR_SECRET_KEY`: secret key related to your API access
+ * `CODIGA_API_TOKEN`: token related to your API access
 
 
 There is an example of a `pre-push` hook available in [`docs/hooks/pre-push.sample`](docs/hooks/pre-push.sample).
 
-## About Code Inspector
+## About Codiga
 
-[Code Inspector](https://www.code-inspector.com) is a software analysis platform to manage and mitigate
+[Codiga](https://www.codiga.io) is a software analysis platform to manage and mitigate
 technical debt. It offers plans that caters to all developers. From our basic free plan for your personal project
-to the gold plan (for companies with multiples private projects), [code-inspector](https://www.code-inspector.com) detects coding issues
+to the gold plan (for companies with multiples private projects), [codiga](https://www.codiga.io) detects coding issues
 and helps you keep your project afloat.

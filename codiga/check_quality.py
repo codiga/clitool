@@ -1,8 +1,8 @@
-"""Check the quality of a project for a given SHA. This tool is used to integrate Code Inspector
+"""Check the quality of a project for a given SHA. This tool is used to integrate Codiga
 with Continuous Integration Pipelines.
 
 Usage:
-    code-inspector-check-quality [options]
+    codiga-check-quality [options]
 
 
 Global options:
@@ -15,7 +15,7 @@ Global options:
     --max-long-functions-rate <rate>      Max rate of long functions in the total number of functions (optional)
     --max-timeout-sec <timeout>           Maximum time to wait before the analysis is done (in secs). Default to 600.
 Example:
-    $ code-inspector-check-quality -p "MY SUPER PROJECT" --min-quality-score 90
+    $ codiga-check-quality --project "MY SUPER PROJECT" --min-quality-score 90 --sha 7644598cb436840a3961dd2b66172c18a2ff7823
 """
 
 import os
@@ -25,54 +25,21 @@ import sys
 import time
 
 import docopt
-from code_inspector.common import is_grade_lower
-from code_inspector.constants import DEFAULT_TIMEOUT
+from codiga.common import is_grade_lower
+from codiga.constants import DEFAULT_TIMEOUT, API_TOKEN_ENVIRONMENT_VARIABLE
 
 from .graphql.common import do_graphql_query
 from .version import __version__
 
 logging.basicConfig()
 
-log = logging.getLogger('code-inspector')
+log = logging.getLogger('codiga')
 
 
-def start_analysis(access_key, secret_key, token, actor, repository, sha, ref, project_name):
-    """
-    Get the project information with the latest analysis data using the project name
-    :param access_key: the access key to the GraphQL API
-    :param secret_key: the secret key to the GraphQL API
-    :param token: the token to use to analyze the project (used to checkout the repository).
-    :param actor: GitHub username that initiated the request
-    :param repository: GitHub repository name.
-    :param sha: SHA to analyze
-    :param ref: ref to analyze (branch or tag)
-    :param project_name: name of the project
-    :return: the project identifier or None is exception or non-existent project.
-    """
-    args = []
-    if project_name is not None and len(project_name) > 0:
-        args.append("projectName: \"" + project_name + "\"")
-    if ref is not None and len(ref) > 0:
-        args.append("ref: \"" + ref + "\"")
-    args.append("token: \"" + token + "\"")
-    args.append("actor: \"" + actor + "\"")
-    args.append("repositoryName: \"" + repository + "\"")
-    args.append("sha: \"" + sha + "\"")
-    args_string = ",".join(args)
-    query = """mutation {githubAction(""" + args_string + """){id}}"""
-    response_json = do_graphql_query(access_key, secret_key, {"query": query})
-
-    if not response_json:
-        return None
-
-    return response_json['githubAction']
-
-
-def get_analysis_by_revision(access_key, secret_key, project_name, revision):
+def get_analysis_by_revision(api_token, project_name, revision):
     """
     Get an analysis using its ID
-    :param access_key: access key to poll the API
-    :param secret_key: secret key to poll the API
+    :param api_token: token to poll the API
     :param project_name: name of the project to analyze
     :param revision: the revision to analyze
     :return: the return code depending on the results or some processing error
@@ -101,7 +68,7 @@ def get_analysis_by_revision(access_key, secret_key, project_name, revision):
             }
         }
         """
-    response_json = do_graphql_query(access_key, secret_key, {"query": query})
+    response_json = do_graphql_query(api_token, {"query": query})
     logging.info("Analysis response %s", response_json)
     return response_json['project']
 
@@ -134,7 +101,7 @@ def main(argv=None):
 
     log.setLevel(logging.INFO)
 
-    log.info("Invoking code-inspector-check-quality with the following parameters")
+    log.info("Invoking codiga-check-quality with the following parameters")
     log.info("                    (parameters)                    ")
     log.info("sha: %s", sha)
     log.info("project_name: %s", project_name)
@@ -147,15 +114,10 @@ def main(argv=None):
     log.info("                      (starting)                    ")
 
     try:
-        access_key = os.environ.get('CODE_INSPECTOR_ACCESS_KEY')
-        secret_key = os.environ.get('CODE_INSPECTOR_SECRET_KEY')
+        api_token = os.environ.get(API_TOKEN_ENVIRONMENT_VARIABLE)
 
-        if not access_key:
-            log.info('CODE_INSPECTOR_ACCESS_KEY environment variable not defined!')
-            sys.exit(1)
-
-        if not secret_key:
-            log.info('CODE_INSPECTOR_SECRET_KEY not defined!')
+        if not api_token:
+            log.info('%s environment variable not defined!', API_TOKEN_ENVIRONMENT_VARIABLE)
             sys.exit(1)
 
         if not project_name:
@@ -196,7 +158,7 @@ def main(argv=None):
                 sys.exit(1)
 
             poll_analysis = None
-            project = get_analysis_by_revision(access_key, secret_key, project_name, sha)
+            project = get_analysis_by_revision(api_token, project_name, sha)
             analysis_complete = False
             if project['analyses'] and len(project['analyses']) > 0:
                 poll_analysis = project['analyses'][0]

@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import patch
 
-from code_inspector.graphql.constants import STATUS_DONE
-from code_inspector.pre_hook_check import analyze_file
+from codiga.graphql.constants import STATUS_DONE
+from codiga.pre_hook_check import analyze_file
 
 
 class TestPreCommitCheck(unittest.TestCase):
@@ -23,8 +23,8 @@ class TestPreCommitCheck(unittest.TestCase):
         res = analyze_file("myfilethatdoesnotexists", "C", 1)
         self.assertTrue(len(res) == 0)
 
-    @patch('code_inspector.pre_hook_check.graphql_create_file_analysis')
-    @patch('code_inspector.pre_hook_check.graphql_get_file_analysis')
+    @patch('codiga.pre_hook_check.graphql_create_file_analysis')
+    @patch('codiga.pre_hook_check.graphql_get_file_analysis')
     def test_analyze_file_success(self, graphql_get_file_analysis, graphql_create_file_analysis):
         """
         Test that test the success case of analyze_file

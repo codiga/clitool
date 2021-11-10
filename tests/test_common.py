@@ -1,6 +1,6 @@
 import unittest
 
-from code_inspector.common import is_grade_lower
+from codiga.common import is_grade_lower
 
 
 class TestCommon(unittest.TestCase):

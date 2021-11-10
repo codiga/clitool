@@ -2,7 +2,7 @@
 meets quality criteria.
 
 Usage:
-    code-inspector-github-action [options]
+    codiga-github-action [options]
 
 
 Global options:
@@ -19,7 +19,7 @@ Global options:
     --max-long-functions-rate <rate>      Max rate of long functions in the total number of functions (optional)
     --max-timeout-sec <timeout>           Maximum time to wait before the analysis is done (in secs). Default to 600.
 Example:
-    $ code-inspector-github-action -p "MY SUPER PROJECT" --min-quality-score 90
+    $ codiga-github-action -p "MY SUPER PROJECT" --min-quality-score 90
 """
 
 import os
@@ -30,22 +30,20 @@ import time
 
 import docopt
 
-from code_inspector.common import is_grade_lower
+from codiga.common import is_grade_lower
 
-from .constants import DEFAULT_TIMEOUT
+from .constants import DEFAULT_TIMEOUT, API_TOKEN_ENVIRONMENT_VARIABLE
 from .graphql.common import do_graphql_query, do_graphql_query_with_api_token
 from .version import __version__
 
 logging.basicConfig()
 
-log = logging.getLogger('code-inspector')
+log = logging.getLogger('codiga')
 
 
-def start_analysis(access_key, secret_key, api_token, token, actor, repository, sha, ref, project_name):
+def start_analysis(api_token, token, actor, repository, sha, ref, project_name):
     """
     Get the project information with the latest analysis data using the project name
-    :param access_key: the access key to the GraphQL API
-    :param secret_key: the secret key to the GraphQL API
     :param api_token: the api token to the GraphQL API
     :param token: the token to use to analyze the project (used to checkout the repository).
     :param actor: GitHub username that initiated the request
@@ -68,12 +66,8 @@ def start_analysis(access_key, secret_key, api_token, token, actor, repository, 
     args_string = ",".join(args)
     query = """mutation {githubAction(""" + args_string + """){id}}"""
 
-    if api_token:
-        log.info("starting analysis using api token")
-        response_json = do_graphql_query_with_api_token(api_token, {"query": query})
-    else:
-        log.info("starting analysis using access/secret keys")
-        response_json = do_graphql_query(access_key, secret_key, {"query": query})
+    log.info("starting analysis using api token")
+    response_json = do_graphql_query_with_api_token(api_token, {"query": query})
 
     if not response_json:
         return None
@@ -81,11 +75,9 @@ def start_analysis(access_key, secret_key, api_token, token, actor, repository, 
     return response_json['githubAction']
 
 
-def get_analysis(access_key, secret_key, api_token, analysis_id):
+def get_analysis(api_token, analysis_id):
     """
     Get an analysis using its ID
-    :param access_key: access key to poll the API
-    :param secret_key: secret key to poll the API
     :param api_token: the API token to access code inspector
     :param analysis_id: the identifier of the analysis we want to poll
     :return: the return code depending on the results or some processing error
@@ -113,10 +105,8 @@ def get_analysis(access_key, secret_key, api_token, analysis_id):
           }
         }
         """
-    if api_token:
-        response_json = do_graphql_query_with_api_token(api_token, {"query": query})
-    else:
-        response_json = do_graphql_query(access_key, secret_key, {"query": query})
+
+    response_json = do_graphql_query_with_api_token(api_token, {"query": query})
     logging.info("Analysis response %s", response_json)
     return response_json['analysis']
 
@@ -170,20 +160,12 @@ def main(argv=None):
     log.info("\_o<                  (starting)                >o_<")
 
     try:
-        access_key = os.environ.get('CODE_INSPECTOR_ACCESS_KEY')
-        secret_key = os.environ.get('CODE_INSPECTOR_SECRET_KEY')
-        api_token = os.environ.get('CODE_INSPECTOR_API_TOKEN')
+        api_token = os.environ.get(API_TOKEN_ENVIRONMENT_VARIABLE)
 
         # API Token must be defined. If not, we rely on the old access key/secret key.
         if not api_token:
-            log.info('CODE_INSPECTOR_API_TOKEN environment variable not defined, trying to use access-key or secret-key')
-            if not access_key:
-                log.info('CODE_INSPECTOR_ACCESS_KEY environment variable not defined!')
-                sys.exit(1)
-
-            if not secret_key:
-                log.info('CODE_INSPECTOR_SECRET_KEY not defined!')
-                sys.exit(1)
+            log.info('%s environment variable not defined!', API_TOKEN_ENVIRONMENT_VARIABLE)
+            sys.exit(1)
 
         if not token:
             log.info('GitHub token required')
@@ -218,7 +200,7 @@ def main(argv=None):
         else:
             max_long_functions_rate = None
 
-        analysis = start_analysis(access_key, secret_key, api_token, token,
+        analysis = start_analysis(api_token, token,
                                   actor, repository, sha, ref, project_name)
 
         if not analysis:
@@ -235,7 +217,7 @@ def main(argv=None):
                 log.error("Deadline expired")
                 sys.exit(1)
 
-            poll_analysis = get_analysis(access_key, secret_key, api_token, analysis_id)
+            poll_analysis = get_analysis(api_token, analysis_id)
             if poll_analysis is None or poll_analysis['status'].upper() not in ["DONE", "ERROR", "SAME_REVISION"]:
                 log.debug("analysis not completed yet")
                 time.sleep(5)

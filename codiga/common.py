@@ -1,6 +1,6 @@
 import logging
 
-log = logging.getLogger('code-inspector')
+log = logging.getLogger('codiga')
 
 GRADE_EXCELLENT = "EXCELLENT"
 GRADE_GOOD = "GOOD"

@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 
 VERSION_FILE = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                            'code_inspector', 'version.py')
+                            'codiga', 'version.py')
 
 DESCRIPTION = open('README.md').read()
 
@@ -14,28 +14,28 @@ with open(VERSION_FILE, 'r') as f:
 
 
 setup(
-    name='code-inspector',
+    name='codiga',
     version=VERSION,
     packages=find_packages(),
     url='https://github.com/codeinspectorio/citool',
     project_urls={
-        'Changelog': ('https://github.com/codeinspectorio/citool/'
+        'Changelog': ('https://github.com/codiga/clitool/'
                       'blob/master/CHANGELOG.md'),
-        'Docs': 'https://github.com/codeinspectorio/citool/',
+        'Docs': 'https://github.com/codiga/clitool/',
     },
     license='BSD',
-    author='code-inspector',
-    description='Trigger new code analysis on code-inspector.io',
+    author='codiga',
+    description='CLI tools for codiga.io',
     long_description=DESCRIPTION,
     long_description_content_type="text/markdown",
     entry_points={
         'console_scripts': [
-            'code-inspector-analyze = code_inspector.analyze:main',
-            'code-inspector-github-action = code_inspector.github_action:main',
-            'code-inspector-check-quality = code_inspector.check_quality:main',
-            'code-inspector-pre-hook-check = code_inspector.pre_hook_check:main',
-            'code-inspector-compare = code_inspector.compare:main',
-            'code-inspector-project = code_inspector.project:main'
+            'codiga-analyze = codiga.analyze:main',
+            'codiga-github-action = codiga.github_action:main',
+            'codiga-check-quality = codiga.check_quality:main',
+            'codiga-pre-hook-check = codiga.pre_hook_check:main',
+            'codiga-compare = codiga.compare:main',
+            'codiga-project = codiga.project:main'
         ],
     },
     install_requires=['docopt>=0.6.2', 'requests>=2.25.1', "unidiff>=0.6.0", "tenacity>=7.0.0"],

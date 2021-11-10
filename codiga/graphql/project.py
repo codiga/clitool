@@ -2,18 +2,17 @@
 Function to create a file analysis using the GraphQL API.
 """
 
-from code_inspector.graphql.common import do_graphql_query
+from codiga.graphql.common import do_graphql_query
 
 
-def graphql_get_project_info(access_key: str, secret_key: str, project_name: str):
+def graphql_get_project_info(api_token: str, project_name: str):
     """
     Get information about a project
 
-    :param access_key access key to the API
-    :param secret_key secret key to the API
+    :param api_token: the API token to access the GraphQL API
     :param project_name: name of the project
     """
-    if not project_name or not access_key or not secret_key:
+    if not project_name or not api_token:
         raise ValueError
     query = """
         {
@@ -31,18 +30,17 @@ def graphql_get_project_info(access_key: str, secret_key: str, project_name: str
           }
         }
     """
-    data = do_graphql_query(access_key, secret_key, {"query": query})
+    data = do_graphql_query(api_token, {"query": query})
     if 'project' in data:
         return data['project']
     return None
 
 
-def graphql_get_file_analysis(access_key: str, secret_key: str, file_analysis_id: int):
+def graphql_get_file_analysis(api_token: str, file_analysis_id: int):
     """
     Get the file analysis object with violations
 
-    :param access_key access key to the API
-    :param secret_key secret key to the API
+    :param api_token: the API token to access the GraphQL API
     :param file_analysis_id: the identifier of the file analysis to get
     :return: the file analysis object and it's violations
     """
@@ -72,4 +70,4 @@ def graphql_get_file_analysis(access_key: str, secret_key: str, file_analysis_id
       }
     }
     """
-    return do_graphql_query(access_key, secret_key, {"query": query})
+    return do_graphql_query(api_token, {"query": query})

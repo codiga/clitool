@@ -1,14 +1,14 @@
-"""Get the status of a project on Code-Inspector
+"""Get the status of a project on Codiga
 
 Usage:
-    code-inspector-analyze [options]
+    codiga-analyze [options]
 
 Global options:
     -p PROJECT_NAME          Project name to show
     -w                       Wait for the analysis to complete and print results
     -t TIMEOUT               Timeout to wait for the job completion (default 600 seconds)
 Example:
-    $ code-inspector-analyze -p "MY SUPER PROJECT"
+    $ codiga-analyze -p "MY SUPER PROJECT"
 """
 
 import os
@@ -19,20 +19,19 @@ import time
 
 import docopt
 
-from .constants import DEFAULT_TIMEOUT
+from .constants import DEFAULT_TIMEOUT, API_TOKEN_ENVIRONMENT_VARIABLE
 from .graphql.common import do_graphql_query
 from .version import __version__
 
 logging.basicConfig()
 
-log = logging.getLogger('code-inspector')
+log = logging.getLogger('codiga')
 
 
-def analyze(access_key, secret_key, project_name):
+def analyze(api_token, project_name):
     """
     Get the project information with the latest analysis data using the project name
-    :param access_key: the access key to the GraphQL API
-    :param secret_key: the secret key to the GraphQL API
+    :param api_token: the api token to the GraphQL API
     :param project_name: name of the project
     :return: the project identifier or None is exception or non-existent project.
     """
@@ -42,7 +41,7 @@ def analyze(access_key, secret_key, project_name):
     query = """
         mutation { scheduleAnalysis(""" + args_string + """){id}}
     """
-    response_json = do_graphql_query(access_key, secret_key, {"query": query})
+    response_json = do_graphql_query(api_token, {"query": query})
 
     if not response_json:
         return None
@@ -50,11 +49,10 @@ def analyze(access_key, secret_key, project_name):
     return response_json['scheduleAnalysis']
 
 
-def get_analysis(access_key, secret_key, analysis_id):
+def get_analysis(api_token, analysis_id):
     """
     Get an analysis using its ID
-    :param access_key: access key to poll the API
-    :param secret_key: secret key to poll the API
+    :param api_token: the api token to the GraphQL API
     :param analysis_id: the identifier of the analysis we want to poll
     :return: the return code depending on the results or some processing error
     """
@@ -75,7 +73,7 @@ def get_analysis(access_key, secret_key, analysis_id):
           }
         }
         """
-    response_json = do_graphql_query(access_key, secret_key, {"query": query})
+    response_json = do_graphql_query(api_token, {"query": query})
     return response_json['analysis']
 
 
@@ -99,22 +97,18 @@ def main(argv=None):
     log.setLevel(logging.INFO)
 
     try:
-        access_key = os.environ.get('CODE_INSPECTOR_ACCESS_KEY')
-        secret_key = os.environ.get('CODE_INSPECTOR_SECRET_KEY')
+        api_token = os.environ.get(API_TOKEN_ENVIRONMENT_VARIABLE)
 
-        if not access_key:
-            log.info('CODE_INSPECTOR_ACCESS_KEY environment variable not defined!')
+        if not api_token:
+            log.info('%s environment variable not defined!', API_TOKEN_ENVIRONMENT_VARIABLE)
             sys.exit(1)
 
-        if not secret_key:
-            log.info('CODE_INSPECTOR_SECRET_KEY not defined!')
-            sys.exit(1)
 
         if not project_name:
             log.info('Project name not defined!')
             sys.exit(1)
 
-        analysis = analyze(access_key, secret_key, project_name)
+        analysis = analyze(api_token, project_name)
 
         if not analysis:
             log.error("Cannot start new analysis")
@@ -130,7 +124,7 @@ def main(argv=None):
                     log.error("Deadline expired")
                     sys.exit(1)
 
-                poll_analysis = get_analysis(access_key, secret_key, analysis_id)
+                poll_analysis = get_analysis(api_token, analysis_id)
                 if poll_analysis['status'].upper() not in ["DONE", "ERROR", "SAME_REVISION"]:
                     log.debug("analysis not completed yet")
                     time.sleep(5)

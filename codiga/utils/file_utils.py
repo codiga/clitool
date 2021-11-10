@@ -2,7 +2,7 @@
 Library to manipulate files: reading them, identify file and languages types.
 """
 
-# All languages supported by Code Inspector
+# All languages supported by Codiga
 from typing import Set, Dict
 
 LANGUAGE_PYTHON = "Python"

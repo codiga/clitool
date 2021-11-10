@@ -1,7 +1,7 @@
-"""Compare two projects using Code Inspector engine.
+"""Compare two projects using Codiga engine.
 
 Usage:
-    code-inspector-compare [options]
+    codiga-compare [options]
 
 Global options:
     -v --verbose             Print the results of the requests when succeeding
@@ -15,7 +15,7 @@ Global options:
     --target-branch <STR>    Target branch to analyze (optional)
     --target-revision <STR>  Target revision to analyze (optional)
 Example:
-    $ code-inspector-compare
+    $ codiga-compare
 """
 
 import os
@@ -27,20 +27,19 @@ import time
 import docopt
 
 
-import code_inspector.constants as constants
+import codiga.constants as constants
 from .graphql.common import do_graphql_query
 from .version import __version__
 
 logging.basicConfig()
 
-log = logging.getLogger('code-inspector')
+log = logging.getLogger('codiga')
 
 
-def get_project_id(access_key, secret_key, project_name):
+def get_project_id(api_token, project_name):
     """
     Get the project identifier from the GraphQL API
-    :param access_key: the access key to the GraphQL API
-    :param secret_key: the secret key to the GraphQL API
+    :param api_token: the access token to the GraphQL API
     :param project_name: name of the project
     :return: the project identifier or None is exception or non-existent project.
     """
@@ -53,18 +52,17 @@ def get_project_id(access_key, secret_key, project_name):
             }
         }
         """
-        response_json = do_graphql_query(access_key, secret_key, {"query": query})
+        response_json = do_graphql_query(api_token, {"query": query})
         return response_json["project"]["id"]
     except KeyError:
         log.error("Error while getting project identifier")
         return None
 
 
-def start_compare_analysis(access_key, secret_key, project_id, kind, url, username, password, target_branch, target_revision):
+def start_compare_analysis(api_token, project_id, kind, url, username, password, target_branch, target_revision):
     """
     Get the project identifier from the GraphQL API
-    :param access_key: the access key to the GraphQL API
-    :param secret_key: the secret key to the GraphQL API
+    :param api_token: the access token to the GraphQL API
     :param project_id: identifier of the project to use as source
     :param kind: kind of the target repositiory (Github, Gitlab, Git)
     :param url: URL of the target repository
@@ -90,18 +88,17 @@ def start_compare_analysis(access_key, secret_key, project_id, kind, url, userna
             mutation { createCompareAnalysis(""" + args_string + """){id}}
         """
 
-        response_json = do_graphql_query(access_key, secret_key, {"query": query})
+        response_json = do_graphql_query(api_token, {"query": query})
         return response_json["createCompareAnalysis"]["id"]
     except KeyError:
         log.error("Error while starting new analysis")
         return None
 
 
-def poll_compare_analysis(access_key, secret_key, compare_analysis_id, timeout):
+def poll_compare_analysis(api_token, compare_analysis_id, timeout):
     """
     Poll the compare analysis, get the results and return a value depending on the results.
-    :param access_key: access key to poll the API
-    :param secret_key: secret key to poll the API
+    :param api_token: access token to poll the API
     :param compare_analysis_id: the identifier of the analysis to poll
     :param timeout: how long do we wait/poll before returning any issue?
     :return: the return code depending on the results or some processing error
@@ -114,7 +111,7 @@ def poll_compare_analysis(access_key, secret_key, compare_analysis_id, timeout):
             log.error("Timeout expired")
             sys.exit(1)
 
-        compare_analysis = get_compare_analysis(access_key, secret_key, compare_analysis_id)
+        compare_analysis = get_compare_analysis(api_token, compare_analysis_id)
 
         if not compare_analysis:
             log.info("Did not find compare analysis object")
@@ -162,11 +159,10 @@ def poll_compare_analysis(access_key, secret_key, compare_analysis_id, timeout):
             return 0
 
 
-def get_compare_analysis(access_key, secret_key, compare_analysis_id):
+def get_compare_analysis(api_token, compare_analysis_id):
     """
     Poll the compare analysis, get the results and return a value depending on the results.
-    :param access_key: access key to poll the API
-    :param secret_key: secret key to poll the API
+    :param api_token: access token to poll the API
     :param compare_analysis_id: the identifier of the analysis to poll
     :param wait_and_print_results: True if we should wait and print the results
     :param timeout: how long do we wait/poll before returning any issue?
@@ -195,7 +191,7 @@ def get_compare_analysis(access_key, secret_key, compare_analysis_id):
           }
         }
         """
-    response_json = do_graphql_query(access_key, secret_key, {"query": query})
+    response_json = do_graphql_query(api_token, {"query": query})
     return response_json['analysisCompare']
 
 
@@ -221,15 +217,10 @@ def main(argv=None):
     log.setLevel(level)
 
     try:
-        access_key = os.environ.get('CODE_INSPECTOR_ACCESS_KEY')
-        secret_key = os.environ.get('CODE_INSPECTOR_SECRET_KEY')
+        api_token = os.environ.get(constants.API_TOKEN_ENVIRONMENT_VARIABLE)
 
-        if not access_key:
-            log.info('CODE_INSPECTOR_ACCESS_KEY environment variable not defined!')
-            sys.exit(1)
-
-        if not secret_key:
-            log.info('CODE_INSPECTOR_SECRET_KEY not defined!')
+        if not api_token:
+            log.info('%s environment variable not defined!', constants.API_TOKEN_ENVIRONMENT_VARIABLE)
             sys.exit(1)
 
         if not project_name:
@@ -248,19 +239,19 @@ def main(argv=None):
             log.info("Invalid kind")
             sys.exit(1)
 
-        project_id = get_project_id(access_key, secret_key, project_name)
+        project_id = get_project_id(api_token, project_name)
 
         if not project_id:
             log.error("Cannot get information about your project, exiting")
             sys.exit(2)
 
-        compare_analysis_id = start_compare_analysis(access_key, secret_key, project_id,
+        compare_analysis_id = start_compare_analysis(api_token, project_id,
                                                      kind, url, username, password, target_branch, target_revision)
         if not compare_analysis_id:
             log.error("Cannot start a new comparison, exiting")
             sys.exit(3)
 
-        ret = poll_compare_analysis(access_key, secret_key, compare_analysis_id, timeout)
+        ret = poll_compare_analysis(api_token, compare_analysis_id, timeout)
         log.debug("done, returning %s", ret)
         sys.exit(ret)
     except KeyboardInterrupt:  # pragma: no cover

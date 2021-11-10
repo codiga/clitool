@@ -7,7 +7,7 @@ import subprocess
 import sys
 from typing import List, Optional
 
-from code_inspector.exceptions.git_command_exception import GitCommandException
+from codiga.exceptions.git_command_exception import GitCommandException
 
 COMMAND_DIFF = 'diff'
 
