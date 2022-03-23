@@ -1,5 +1,5 @@
-[![Code Grade](https://www.code-inspector.com/project/29691/status/svg)](https://frontend.code-inspector.com/public/project/29691/clitool/dashboard)
-[![Code Quality](https://www.code-inspector.com/project/29691/score/svg)](https://frontend.code-inspector.com/public/project/29691/clitool/dashboard)
+[![Code Grade](https://api.codiga.io/project/29691/status/svg)](https://app.codiga.io/public/project/29691/clitool/dashboard)
+[![Code Quality](https://api.codiga.io/project/29691/score/svg)](https://app.codiga.io/public/project/29691/clitool/dashboard)
 
 
 # Codiga Continuous Integration Tool
