@@ -1,4 +1,5 @@
-GRAPHQL_ENDPOINT_URL = 'https://api.codiga.io/graphql'
+GRAPHQL_ENDPOINT_PROD_URL = 'https://api.codiga.io/graphql'
+GRAPHQL_ENDPOINT_STAGING_URL = 'https://api-staging.codiga.io/graphql'
 
 DEFAULT_TIMEOUT = 600  # 20 minutes
 VALID_SCM_KINDS = ["Bitbucket", "Git", "Github", "Gitlab"]

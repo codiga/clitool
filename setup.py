@@ -34,6 +34,7 @@ setup(
             'codiga-github-action = codiga.github_action:main',
             'codiga-check-quality = codiga.check_quality:main',
             'codiga-pre-hook-check = codiga.pre_hook_check:main',
+            'codiga-snippets-import = codiga.snippets_imports:main',
             'codiga-compare = codiga.compare:main',
             'codiga-project = codiga.project:main'
         ],
