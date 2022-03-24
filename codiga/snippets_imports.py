@@ -9,6 +9,7 @@ Options:
     --file=</path/to/snippets.json>             File to import (this or --url must be passed)
     --url=<https://path/to/snippets.json>       URL to the snippet to import (this or --file must be passed)
     --cookbook=<cookbook-id>                    add recipe to a cookbook (optional)
+    --shortcut-prefix=<prefix>                  prefix for all snippets (optional)
     --staging                                   Use staging endpoint (debugging only)
 
 Example:
@@ -19,15 +20,12 @@ import os
 import json
 import logging
 import sys
-import time
 import requests
 
 import docopt
 
-from codiga.common import is_grade_lower
 
 from .constants import DEFAULT_TIMEOUT, API_TOKEN_ENVIRONMENT_VARIABLE
-from .graphql.common import do_graphql_query, do_graphql_query_with_api_token
 from .graphql.recipe import post_recipe
 from .snippets.convert import convert_snippet_file_content_to_codiga
 from .version import __version__
@@ -36,7 +34,35 @@ logging.basicConfig()
 
 log = logging.getLogger('codiga')
 
-VALID_LANGUAGES = ["Javascript", "Typescript", "C", "Cpp", "Python", "Java"]
+VALID_LANGUAGES = ["Docker",
+                   "Objectivec",
+                   "Terraform",
+                   "Json",
+                   "Yaml",
+                   "Swift",
+                   "Solidity",
+                   "Sql",
+                   "Shell",
+                   "Scala",
+                   "Rust",
+                   "Ruby",
+                   "Php",
+                   "Python",
+                   "Perl",
+                   "Kotlin",
+                   "Html",
+                   "Haskell",
+                   "Go",
+                   "Apex",
+                   "Css",
+                   "Dart",
+                   "Javascript",
+                   "Typescript",
+                   "C",
+                   "Cpp",
+                   "Csharp",
+                   "Python",
+                   "Java"]
 
 def main(argv=None):
     """
@@ -52,6 +78,7 @@ def main(argv=None):
     url = options['--url']
     use_staging = options['--staging']
     cookbook = options['--cookbook']
+    shortcut_prefix = options['--shortcut-prefix']
 
     log.addHandler(logging.StreamHandler())
 
@@ -111,8 +138,7 @@ def main(argv=None):
             print("no content read")
             sys.exit(1)
 
-        codiga_recipes = convert_snippet_file_content_to_codiga(content)
-
+        codiga_recipes = convert_snippet_file_content_to_codiga(content, shortcut_prefix)
         recipe_index = 0
         for codiga_recipe in codiga_recipes:
             result = post_recipe(api_token, codiga_recipe, language, visibility == "public", cookbook_id, use_staging)
@@ -123,7 +149,11 @@ def main(argv=None):
                     url =f"https://app.codiga.io/assistant/recipe/{result['data']['createAssistantRecipe']['id']}/view"
                 print(f"[SUCCESS] {recipe_index} Recipe {codiga_recipe['name']} at: {url}")
             else:
-                print(f"[ERROR] {recipe_index} Error when posting recipe {codiga_recipe['name']}: {result['errors'][0]['message']}")
+                if "errors" in result:
+                    print(f"[ERROR] {recipe_index} Error when posting recipe {codiga_recipe['name']}: {result['errors'][0]['message']}")
+                else:
+                    print(f"[ERROR] {recipe_index} Error when posting recipe {codiga_recipe['name']}")
+                    print(result)
             recipe_index = recipe_index + 1
         sys.exit(0)
     except KeyboardInterrupt:  # pragma: no cover
