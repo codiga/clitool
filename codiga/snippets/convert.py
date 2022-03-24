@@ -33,7 +33,7 @@ def convert_variables_in_recipes(recipe_content):
     return recipe_content
 
 def fix_shortcut(shortcut):
-    replace_characters = shortcut.replace("!", "").replace("/", "").replace("<", "").replace(">", "").replace("(", "").replace(")", "")
+    replace_characters = shortcut.replace("!", "").replace("/", "").replace("<", "").replace(">", "").replace("(", "").replace(")", "").replace("#", "")
     replace_underscores = replace_characters.replace("-", "_").replace(" ", ".")
     camel_case = convert_camel_case_to_snake_case(replace_underscores).lower()
     return re.sub('_+','_', camel_case) # remove multiple _
