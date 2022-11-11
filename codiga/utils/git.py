@@ -103,3 +103,11 @@ def get_diff(revision1: str, revision2: str):
     :return:
     """
     return execute_git_command([COMMAND_DIFF, revision1, revision2])
+
+
+def get_root_directory():
+    """
+    Get the git root directory
+    :return:
+    """
+    return execute_git_command(["rev-parse", "--show-toplevel"])

@@ -5,23 +5,22 @@ Usage:
     codiga-pre-commit-check [options]
 
 Global options:
-    --exclude-categories <list-of-strings>  Violations with categories you want to exclude
-    --exclude-severities <list-of-integer>  Violations which severities you want to ignore separated by commas
     --remote-sha <string>                   The remote SHA. If new branch, the script passes automatically
     --local-sha <string>                    The local SHA being pushed
-    --project-name <string>                 Name of the project on Codiga
     --max-timeout-sec <timeout>             Maximum time to wait before the analysis is done (in secs). Default to 60.
 
 Example:
-    $ codiga-pre-commit-check -p "MY SUPER PROJECT" --local-sha <sha1> --remote-sha <sha2> --exclude-categories=Documentation --exclude-severities 3,4
+    $ codiga-pre-commit-check --local-sha <sha1> --remote-sha <sha2>
 
 Note:
-    Make sure your API keys are defined using CODIGA_API_TOKEN and CODIGA_API_TOKEN
+    Make sure your API keys are defined using CODIGA_API_TOKEN
 """
+import typing
 from concurrent.futures import ThreadPoolExecutor
 import os
 import logging
 import sys
+import base64
 from threading import Thread
 import time
 from time import sleep
@@ -34,11 +33,15 @@ from .constants import BLANK_SHA, API_TOKEN_ENVIRONMENT_VARIABLE
 from .graphql.constants import STATUS_DONE, STATUS_ERROR
 from .graphql.file_analysis import graphql_create_file_analysis, graphql_get_file_analysis
 from .graphql.project import graphql_get_project_info
+from .graphql.rosie import get_rulesets
+from .model.rosie_rule import RosieRule, convert_rules_to_rosie_rules
 from .model.violation import Violation
+from .rosie.api import analyze_rosie
+from .rosie.ruleset import get_rulesets_from_codigafile
 from .utils.file_utils import associate_files_with_language
-from .utils.git import get_git_binary, get_diff, find_closest_sha
+from .utils.git import get_git_binary, get_diff, find_closest_sha, get_root_directory
 from .utils.patch_utils import get_added_or_modified_lines
-from .utils.violation_utils import filter_violations, filter_violations_for_diff
+from .utils.violation_utils import filter_violations_for_diff
 from .version import __version__
 
 logging.basicConfig()
@@ -46,10 +49,11 @@ logging.basicConfig()
 log: logging.Logger = logging.getLogger('codiga')
 
 
-def analyze_file(filename: str, language: str, project_id: int) -> List[Violation]:
+def analyze_file(rosie_rules: typing.List[RosieRule],
+                 filename: str, language: str, project_id: int) -> List[Violation]:
     """
     Analyze a file using a GraphQL query
-    :param project_id: the identifier of the project to analyze
+    :param rosie_rules: rules to use
     :param language: language of the file
     :param filename: the name of the filename
     :return: the list of violations found
@@ -62,47 +66,25 @@ def analyze_file(filename: str, language: str, project_id: int) -> List[Violatio
     # Read the file being pushed/sent
     try:
         with open(filename, "r") as file:
-            code = file.read()
-
-            file_analysis_id = graphql_create_file_analysis(
-                api_token=api_token,
-                filename=filename,
-                language=language,
-                project_id=project_id,
-                content=code
-            )
+            code: str = file.read()
+            code_base64 = base64.b64encode(code.encode('utf-8')).decode('utf-8')
+            res = analyze_rosie(filename, language, "utf-8", code_base64, rosie_rules)
+            violations.extend(res)
     except FileNotFoundError:
         logging.error("Cannot open file %s", filename)
         return violations
-
-    # Make the analysis on Codiga and wait for the analysis to complete.
-    while True:
-        file_analysis = graphql_get_file_analysis(
-            api_token=api_token,
-            file_analysis_id=file_analysis_id
-        )
-        if file_analysis['getFileAnalysis']['status'] == STATUS_ERROR:
-            break
-
-        if file_analysis['getFileAnalysis']['status'] == STATUS_DONE:
-            for graphql_violation in file_analysis['getFileAnalysis']['violations']:
-                violations.append(Violation(**graphql_violation))
-            break
-
-        time.sleep(0.5)
-        continue
     return violations
 
 
-def analyze_files(project_name: str,
-                  files_with_language: Dict[str, str],
+def analyze_files(files_with_language: Dict[str, str],
+                  rosie_rules: typing.List[RosieRule],
                   max_timeout_secs: int) -> Dict[str, List[Violation]]:
     """
     Analyze all files and return the list of violations for all of them. In order
     to speed up analysis, use a thread pool to launch multiple analysis.
 
-    :param project_name: name of the project to analyze on Code Inspecto
     :param files_with_language: Dictionary with the files and their languages
+    :param rosie_rules: list of rules to use
     :param max_timeout_secs: how long before the analysis fails (in seconds)
     :return: dictionary with the file name as key and list of violations as a result
     """
@@ -114,23 +96,9 @@ def analyze_files(project_name: str,
     deadline = time.time() + max_timeout_secs
     api_token: str = os.environ.get(API_TOKEN_ENVIRONMENT_VARIABLE)
 
-    # Get the project identifier based on the project name
-    if project_name:
-        project_info = graphql_get_project_info(
-            api_token=api_token,
-            project_name=project_name
-        )
-
-        if not project_info:
-            print("Project {0} not found".format(project_name), file=sys.stderr)
-            sys.exit(2)
-
-        if project_info:
-            project_id = int(project_info['id'])
-
     # Submit all threads to be executed.
     for filename in files_to_analyze:
-        thread = executor.submit(analyze_file, filename, files_with_language[filename], project_id)
+        thread = executor.submit(analyze_file, rosie_rules, filename, files_with_language[filename], project_id)
         threads[filename] = thread
 
     # Wait for threads completion
@@ -161,18 +129,15 @@ def print_violations(files_with_violations: Dict[str, List[Violation]]):
             print("{0}:{1} {2}".format(filename, violation.line, violation.description), file=sys.stderr)
 
 
-def check_push(project_name: str, local_sha: str, remote_sha: str,
-               exclude_categories: List[str], exclude_severities: List[int], max_timeout_secs: int):
+def check_push(local_sha: str, remote_sha: str, max_timeout_secs: int):
     """
-    Check that the
-    :param project_name:
+    Check the current push.
     :param local_sha:
     :param remote_sha:
-    :param exclude_categories:
-    :param exclude_severities:
     :param max_timeout_secs:
     :return:
     """
+    api_token: str = os.environ.get(API_TOKEN_ENVIRONMENT_VARIABLE)
     # If the remote sha does not exist, we do not check this revision.
     if remote_sha == BLANK_SHA:
         print("Push seems to originate from a new branch, trying to find ancestor commit.")
@@ -182,12 +147,31 @@ def check_push(project_name: str, local_sha: str, remote_sha: str,
             sys.exit(0)
 
     if remote_sha == local_sha:
-        print("Remote and local sha are the same ({0}), skipping verification"
-              .format(remote_sha), file=sys.stderr)
+        print(f"Remote and local sha are the same ({remote_sha}), skipping verification", file=sys.stderr)
         sys.exit(0)
 
     all_violations: List[Violation] = []
     diff_content = get_diff(remote_sha, local_sha)
+    root_directory = get_root_directory()
+
+    if not root_directory:
+        log.error("Cannot find the repository root directory")
+        sys.exit(1)
+
+    ruleset_files = f"{root_directory.strip()}/codiga.yml"
+    if not os.path.isfile(ruleset_files):
+        log.error("no codiga.yml file found at the root of the directory (searching for %s)", ruleset_files)
+        sys.exit(2)
+
+    rulesets = get_rulesets_from_codigafile(ruleset_files)
+
+    log.info("using the following rulesets %s", rulesets)
+
+    rules = get_rulesets(api_token, rulesets)
+    rosie_rules: typing.List[RosieRule] = convert_rules_to_rosie_rules(rules)
+
+    log.info("found %s rules", len(rosie_rules))
+
     patch_set = PatchSet(diff_content)
     added_lines: Dict[str, Set[int]] = get_added_or_modified_lines(patch_set)
     files_to_analyze: Set[str] = set(added_lines.keys())
@@ -204,14 +188,11 @@ def check_push(project_name: str, local_sha: str, remote_sha: str,
         print("No file to analyze")
 
     # First, analyze each file and get the list of violations.
-    files_with_violations: Dict[str, List[Violation]] = analyze_files(project_name, files_with_languages, max_timeout_secs)
-
-    # Then, filter the violations based on the list of excluded categories and severities passed as arguments.
-    files_with_violations_filtered: Dict[str, List[Violation]] = {filename: filter_violations(violations, exclude_categories, exclude_severities) for filename, violations in files_with_violations.items()}
+    files_with_violations: Dict[str, List[Violation]] = analyze_files(files_with_languages, rosie_rules, max_timeout_secs)
 
     # Finally, filter the violations with the information with the diff. Only show the violations that have been
     # added in the diff being pushed.
-    violations_per_file: Dict[str, List[Violation]] = {filename: filter_violations_for_diff(violations, added_lines.get(filename, [])) for filename, violations in files_with_violations_filtered.items()}
+    violations_per_file: Dict[str, List[Violation]] = {filename: filter_violations_for_diff(violations, added_lines.get(filename, [])) for filename, violations in files_with_violations.items()}
 
     # Put all violations in an array so that we can know how many violations we have.
     for violations in violations_per_file.values():
@@ -235,22 +216,15 @@ def main(argv=None):
     log.setLevel(logging.INFO)
     options = docopt.docopt(__doc__, argv=argv, help=True, version=__version__)
 
-    exclude_categories: str = options['--exclude-categories']
-    exclude_severities: str = options['--exclude-severities']
     remote_sha: str = options['--remote-sha']
     local_sha: str = options['--local-sha']
-    project_name: str = options['--project-name']
     max_timeout_sec: str = options['--max-timeout-sec']
     api_token: str = os.environ.get(API_TOKEN_ENVIRONMENT_VARIABLE)
-    exclude_severities_list: List[str] = []
-    exclude_categories_list: List[str] = []
+
     if not api_token:
         log.error('%s environment variable not defined!', API_TOKEN_ENVIRONMENT_VARIABLE)
         sys.exit(1)
 
-    if not project_name:
-        log.error('Project name not defined')
-        sys.exit(1)
 
     if not remote_sha:
         log.error('remote_sha not defined')
@@ -264,13 +238,7 @@ def main(argv=None):
         log.error("cannot locate git")
         sys.exit(1)
 
-    if exclude_severities:
-        exclude_severities_list = exclude_severities.split(",")
 
-    if exclude_categories:
-        exclude_categories_list = exclude_categories.split(",")
-
-    exclude_severities_list_int: List[int] = []
     max_timeout_sec_int: int
 
     # Get the timeout to a seconds value
@@ -283,18 +251,7 @@ def main(argv=None):
             print("timeout value should be an integer", file=sys.stderr)
             sys.exit(2)
 
-    # Convert the severity list into list of int
-    for severity in exclude_severities_list:
-        try:
-            exclude_severities_list_int.append(int(severity))
-        except ValueError:
-            print("excluded severities should be an int", file=sys.stderr)
-            sys.exit(2)
-
     check_push(
-        project_name=project_name,
-        exclude_categories=exclude_categories_list,
-        exclude_severities=exclude_severities_list_int,
         local_sha=local_sha,
         remote_sha=remote_sha,
         max_timeout_secs=max_timeout_sec_int)

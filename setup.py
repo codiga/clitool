@@ -17,7 +17,7 @@ setup(
     name='codiga',
     version=VERSION,
     packages=find_packages(),
-    url='https://github.com/codeinspectorio/citool',
+    url='https://github.com/codiga/clitool',
     project_urls={
         'Changelog': ('https://github.com/codiga/clitool/'
                       'blob/master/CHANGELOG.md'),
@@ -33,13 +33,13 @@ setup(
             'codiga-analyze = codiga.analyze:main',
             'codiga-github-action = codiga.github_action:main',
             'codiga-check-quality = codiga.check_quality:main',
-            'codiga-pre-hook-check = codiga.pre_hook_check:main',
+            'codiga-git-hook = codiga.git_hook:main',
             'codiga-snippets-import = codiga.snippets_imports:main',
             'codiga-compare = codiga.compare:main',
             'codiga-project = codiga.project:main'
         ],
     },
-    install_requires=['docopt>=0.6.2', 'requests>=2.25.1', "unidiff>=0.6.0", "tenacity>=7.0.0"],
+    install_requires=['docopt>=0.6.2', 'requests>=2.28.1', "unidiff>=0.7.4", "tenacity>=8.1.0", "pyyaml>=6.0"],
     extras_require={
         'yaml': ['PyYAML>=3.10'],
         ':python_version < "3"': ['urllib3[secure]'],

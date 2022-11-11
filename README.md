@@ -171,7 +171,7 @@ Notes that the following environment variables must be set to use the tool:
  * `CODIGA_API_TOKEN`: token related to your API access
 
 
-There is an example of a `pre-push` hook available in [`docs/hooks/pre-push.sample`](docs/hooks/pre-push.sample).
+There is an example of a `pre-push` hook available in [`docs/hooks/pre-push.sample`](docs/hooks/codiga-git-hook.sample).
 
 ## About Codiga
 

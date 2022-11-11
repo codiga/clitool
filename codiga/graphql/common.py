@@ -20,7 +20,7 @@ def do_graphql_query(api_token, payload):
     :return: the returned JSON object
     """
     headers = {API_TOKEN_HEADER: api_token}
-    response = requests.post(constants.GRAPHQL_ENDPOINT_PROD_URL, json=payload, headers=headers)
+    response = requests.post(constants.GRAPHQL_ENDPOINT_PROD_URL, json=payload, headers=headers, timeout=10)
     if response.status_code != 200:
         log.error('Failed to send GraphQL query to Codiga API')
         return None

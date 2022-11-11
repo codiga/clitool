@@ -2,12 +2,12 @@ import unittest
 from unittest.mock import patch
 
 from codiga.graphql.constants import STATUS_DONE
-from codiga.pre_hook_check import analyze_file
+from codiga.git_hook import analyze_file
 
 
 class TestPreCommitCheck(unittest.TestCase):
     """
-    Test pre_hook_check.py
+    Test git_hook.py
     """
     def setUp(self):
         pass
