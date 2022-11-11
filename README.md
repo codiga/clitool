@@ -1,5 +1,6 @@
 [![Code Grade](https://api.codiga.io/project/29691/status/svg)](https://app.codiga.io/public/project/29691/clitool/dashboard)
 [![Code Quality](https://api.codiga.io/project/29691/score/svg)](https://app.codiga.io/public/project/29691/clitool/dashboard)
+[![PyPI version](https://badge.fury.io/py/codiga.svg)](https://badge.fury.io/py/codiga)
 
 
 # Codiga Continuous Integration Tool
