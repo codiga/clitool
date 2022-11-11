@@ -43,6 +43,7 @@ setup(
     extras_require={
         'yaml': ['PyYAML>=3.10'],
         ':python_version < "3"': ['urllib3[secure]'],
+        ':python_version < "3.7"': ['dataclasses'],
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
