@@ -39,7 +39,7 @@ setup(
             'codiga-project = codiga.project:main'
         ],
     },
-    install_requires=['docopt>=0.6.2', 'requests>=2.28.1', "unidiff>=0.7.4", "tenacity>=8.1.0", "pyyaml>=6.0"],
+    install_requires=['docopt>=0.6.2', 'requests>=2.27.1', "unidiff>=0.7.4", "tenacity>=8.1.0", "pyyaml>=6.0"],
     extras_require={
         'yaml': ['PyYAML>=3.10'],
         ':python_version < "3"': ['urllib3[secure]'],
