@@ -239,7 +239,6 @@ def main(argv=None):
         log.error("cannot locate git")
         sys.exit(1)
 
-
     max_timeout_sec_int: int
 
     # Get the timeout to a seconds value
@@ -252,8 +251,11 @@ def main(argv=None):
             print("timeout value should be an integer", file=sys.stderr)
             sys.exit(2)
 
-    check_push(
-        local_sha=local_sha,
-        remote_sha=remote_sha,
-        max_timeout_secs=max_timeout_sec_int)
-    sys.exit(0)
+    try:
+        check_push(
+            local_sha=local_sha,
+            remote_sha=remote_sha,
+            max_timeout_secs=max_timeout_sec_int)
+        sys.exit(0)
+    except Exception:
+        log.exception("unexpected error. Please send the trace to support@codiga.io")
