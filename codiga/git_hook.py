@@ -204,6 +204,8 @@ def check_push(local_sha: str, remote_sha: str, max_timeout_secs: int):
         print_violations(violations_per_file)
         logging.info("Detected %s violations", len(all_violations))
         sys.exit(1)
+    else:
+        print("no violation found")
 
 
 def main(argv=None):
