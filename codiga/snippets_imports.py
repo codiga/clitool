@@ -118,7 +118,7 @@ def main(argv=None):
             sys.exit(1)
 
         if url:
-            request = requests.get(url)
+            request = requests.get(url, timeout=10)
             content = request.json()
         if file:
             if os.path.isfile(file):

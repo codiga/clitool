@@ -1,8 +1,11 @@
 """Check that when doing a push, the code being pushed does not contain any violation detected by
-Codiga.
+Codiga. Your project MUST have a codiga.yml file at the root. See https://app.codiga.io/hub/rulesets
+for rulesets.
+
+For an example how to use it in a Git hook, check https://doc.codiga.io/docs/git-hooks/
 
 Usage:
-    codiga-pre-commit-check [options]
+    codiga-git-hook [options]
 
 Global options:
     --remote-sha <string>                   The remote SHA. If new branch, the script passes automatically
@@ -10,7 +13,7 @@ Global options:
     --max-timeout-sec <timeout>             Maximum time to wait before the analysis is done (in secs). Default to 60.
 
 Example:
-    $ codiga-pre-commit-check --local-sha <sha1> --remote-sha <sha2>
+    $ codiga-git-hook --local-sha <sha1> --remote-sha <sha2>
 
 Note:
     Make sure your API keys are defined using CODIGA_API_TOKEN
@@ -30,9 +33,6 @@ from unidiff import PatchSet
 import docopt
 
 from .constants import BLANK_SHA, API_TOKEN_ENVIRONMENT_VARIABLE
-from .graphql.constants import STATUS_DONE, STATUS_ERROR
-from .graphql.file_analysis import graphql_create_file_analysis, graphql_get_file_analysis
-from .graphql.project import graphql_get_project_info
 from .graphql.rosie import get_rulesets
 from .model.rosie_rule import RosieRule, convert_rules_to_rosie_rules
 from .model.violation import Violation
@@ -49,8 +49,7 @@ logging.basicConfig()
 log: logging.Logger = logging.getLogger('codiga')
 
 
-def analyze_file(rosie_rules: typing.List[RosieRule],
-                 filename: str, language: str, project_id: int) -> List[Violation]:
+def analyze_file(rosie_rules: typing.List[RosieRule], filename: str, language: str) -> List[Violation]:
     """
     Analyze a file using a GraphQL query
     :param rosie_rules: rules to use
@@ -58,10 +57,8 @@ def analyze_file(rosie_rules: typing.List[RosieRule],
     :param filename: the name of the filename
     :return: the list of violations found
     """
-    api_token: str = os.environ.get(API_TOKEN_ENVIRONMENT_VARIABLE)
 
     violations: List[Violation] = []
-    file_analysis_id: int = None
 
     # Read the file being pushed/sent
     try:
@@ -91,14 +88,12 @@ def analyze_files(files_with_language: Dict[str, str],
     threads: Dict[str, Thread] = {}
     result: Dict[str, List[Violation]] = {}
     executor = ThreadPoolExecutor(4)
-    project_id = None
     files_to_analyze = files_with_language.keys()
     deadline = time.time() + max_timeout_secs
-    api_token: str = os.environ.get(API_TOKEN_ENVIRONMENT_VARIABLE)
 
     # Submit all threads to be executed.
     for filename in files_to_analyze:
-        thread = executor.submit(analyze_file, rosie_rules, filename, files_with_language[filename], project_id)
+        thread = executor.submit(analyze_file, rosie_rules, filename, files_with_language[filename])
         threads[filename] = thread
 
     # Wait for threads completion
@@ -115,7 +110,6 @@ def analyze_files(files_with_language: Dict[str, str],
         result[filename] = threads[filename].result()
 
     return result
-
 
 def print_violations(files_with_violations: Dict[str, List[Violation]]):
     """
@@ -152,6 +146,11 @@ def check_push(local_sha: str, remote_sha: str, max_timeout_secs: int):
 
     all_violations: List[Violation] = []
     diff_content = get_diff(remote_sha, local_sha)
+
+    if not diff_content:
+        log.error("cannot read diff")
+        sys.exit(2)
+
     root_directory = get_root_directory()
 
     if not root_directory:

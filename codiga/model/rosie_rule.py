@@ -39,16 +39,19 @@ def convert_rules_to_rosie_rules(rulesets_api) -> typing.List[RosieRule]:
         ruleset_name = ruleset['name']
 
         for rule in ruleset['rules']:
-            entity_checked = ELEMENT_CHECKED_TO_ENTITY_CHECKED.get(rule['elementChecked'])
-
-            if not entity_checked:
-                continue
             rule_name = f"{ruleset_name}/{rule['name']}"
             rule_content = rule['content']
             language = rule['language'].lower()
-            rule_type = rule['ruleType']
-            entity_checked = rule['elementChecked']
+            rule_type = rule['ruleType'].lower()
             pattern = rule['pattern']
+
+            if rule_type == "ast":
+                entity_checked = ELEMENT_CHECKED_TO_ENTITY_CHECKED.get(rule['elementChecked'])
+            else:
+                entity_checked = None
+
+            if rule_type == "ast" and not entity_checked:
+                continue
 
             rosie_rule = RosieRule(id=rule_name,
                                    content_base64=rule_content,

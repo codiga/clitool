@@ -86,8 +86,7 @@ def execute_git_command(arguments: List[str]) -> str:
     try:
         process = subprocess.run(args, check=True, capture_output=True)
     except subprocess.CalledProcessError:
-        logging.error(process.stderr)
-        GitCommandException("error when executing a git command")
+        raise GitCommandException("error when executing a git command")
 
     if process.returncode == 0:
         return process.stdout.decode()
@@ -102,7 +101,10 @@ def get_diff(revision1: str, revision2: str):
     :param revision2: the target revision
     :return:
     """
-    return execute_git_command([COMMAND_DIFF, revision1, revision2])
+    try:
+        return execute_git_command([COMMAND_DIFF, revision1, revision2])
+    except GitCommandException:
+        return None
 
 
 def get_root_directory():
@@ -110,4 +112,7 @@ def get_root_directory():
     Get the git root directory
     :return:
     """
-    return execute_git_command(["rev-parse", "--show-toplevel"])
+    try:
+        return execute_git_command(["rev-parse", "--show-toplevel"])
+    except GitCommandException:
+        return None
