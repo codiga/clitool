@@ -1,3 +1,5 @@
+from .version import __version__
+
 GRAPHQL_ENDPOINT_PROD_URL = 'https://api.codiga.io/graphql'
 GRAPHQL_ENDPOINT_STAGING_URL = 'https://api-staging.codiga.io/graphql'
 
@@ -10,4 +12,4 @@ API_TOKEN_ENVIRONMENT_VARIABLE = "CODIGA_API_TOKEN"
 
 API_TOKEN_HEADER = "X-Api-Token"
 USER_AGENT_HEADER = "User-Agent"
-USER_AGENT_CLI = "Cli"
+USER_AGENT_CLI = f"Cli/{__version__}"
