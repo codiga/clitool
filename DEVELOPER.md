@@ -34,7 +34,7 @@ PYTHONPATH=. python3 -m unittest discover tests
 
 ### Publishing new version
 
-Step 1: bump the version in `code_inspector/version.py` on the master branch
+Step 1: Bump the version in `codiga/version.py` on the master branch
 
 Step 2: Commit the code
 
@@ -43,9 +43,8 @@ git commit -a
 git push
 ```
 
-Step 3: merge master in production
+Step 3: Draft a new release
 
-```bash
-git checkout production
-git merge master
-```
+- choose/create a tag for the release and match the version number set above (vX.X.X)
+- add a detailed log of what's changed
+- Publish release
