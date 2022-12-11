@@ -33,7 +33,7 @@ from unidiff import PatchSet
 import docopt
 
 from .constants import BLANK_SHA, API_TOKEN_ENVIRONMENT_VARIABLE
-from .graphql.rosie import get_rulesets
+from .graphql.rosie import graphql_get_rulesets
 from .model.rosie_rule import RosieRule, convert_rules_to_rosie_rules
 from .model.violation import Violation
 from .rosie.api import analyze_rosie
@@ -111,6 +111,7 @@ def analyze_files(files_with_language: Dict[str, str],
 
     return result
 
+
 def print_violations(files_with_violations: Dict[str, List[Violation]]):
     """
     Print all the violations from all the files.
@@ -166,7 +167,7 @@ def check_push(local_sha: str, remote_sha: str, max_timeout_secs: int):
 
     log.info("using the following rulesets %s", rulesets)
 
-    rules = get_rulesets(api_token, rulesets)
+    rules = graphql_get_rulesets(api_token, rulesets)
     rosie_rules: typing.List[RosieRule] = convert_rules_to_rosie_rules(rules)
 
     log.info("found %s rules", len(rosie_rules))
@@ -225,7 +226,6 @@ def main(argv=None):
     if not api_token:
         log.error('%s environment variable not defined!', API_TOKEN_ENVIRONMENT_VARIABLE)
         sys.exit(1)
-
 
     if not remote_sha:
         log.error('remote_sha not defined')
