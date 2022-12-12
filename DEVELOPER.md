@@ -34,17 +34,10 @@ PYTHONPATH=. python3 -m unittest discover tests
 
 ### Publishing new version
 
-Step 1: Bump the version in `codiga/version.py` on the master branch
-
-Step 2: Commit the code
-
-```bash
-git commit -a
-git push
-```
-
-Step 3: Draft a new release
-
-- choose/create a tag for the release and match the version number set above (vX.X.X)
-- add a detailed log of what's changed
-- Publish release
+1. Bump the version in `codiga/version.py` on the master branch
+2. Commit the code `git commit -a && git push`
+3. Draft a new release
+   - Go on https://github.com/codiga/clitool/releases
+   - Choose/create a tag for the release and match the version number set above (vX.X.X)
+   - add a detailed log of what's changed
+   - Publish release
