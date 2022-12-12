@@ -1,4 +1,5 @@
 import typing
+
 """
 All the GraphQL queries for Rosie
 """
@@ -6,22 +7,29 @@ All the GraphQL queries for Rosie
 from codiga.graphql.common import do_graphql_query
 
 
-def get_rulesets(api_token: str, ruleset_names: typing.List[str]):
-    return list(map(lambda x: get_ruleset(api_token, x), ruleset_names))
-
-
-def get_ruleset(api_token: str, ruleset_name: str):
+def get_rulesets_name_string(ruleset_names: typing.List[str]):
     """
-    Get a ruleset by its name
+    Converts a List[str] into a string for graphql requests
+    :param ruleset_names: List[str]
+    :return: str
+    """
+    return "[\"" + ("\", \"".join(ruleset_names)) + "\"]"
+
+
+def graphql_get_rulesets(api_token: str, ruleset_names: typing.List[str]):
+    """
+    Get rulesets by their names
 
     :param api_token: the API token to access the GraphQL API
-    :param ruleset_name: the name of all ruleset to fetch
+    :param ruleset_names: the names of all rulesets to fetch
     """
-    if not ruleset_name or not api_token:
+    if not ruleset_names or not api_token:
         raise ValueError
+
+    ruleset_names_string = get_rulesets_name_string(ruleset_names)
     query = """
         {
-            ruleSet(name: \""""+ruleset_name+"""\"){
+            ruleSetsForClient(names: """ + ruleset_names_string + """){
             id
             name
             rules(howmany: 10000, skip: 0){
@@ -35,11 +43,10 @@ def get_ruleset(api_token: str, ruleset_name: str):
               elementChecked
             }
           }
-        }
-    """
+        }"""
     data = do_graphql_query(api_token, {"query": query})
-    if 'ruleSet' in data:
-        return data['ruleSet']
+    if 'ruleSetsForClient' in data:
+        return data['ruleSetsForClient']
     return None
 
 
