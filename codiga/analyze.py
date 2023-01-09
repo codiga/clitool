@@ -22,9 +22,6 @@ import docopt
 from .constants import DEFAULT_TIMEOUT, API_TOKEN_ENVIRONMENT_VARIABLE
 from .graphql.common import do_graphql_query
 from .version import __version__
-from random import random
-
-a = random()
 
 logging.basicConfig()
 
