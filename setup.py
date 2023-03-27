@@ -35,6 +35,7 @@ setup(
             'codiga-check-quality = codiga.check_quality:main',
             'codiga-git-hook = codiga.git_hook:main',
             'codiga-snippets-import = codiga.snippets_imports:main',
+            'codiga-export-ruleset = codiga.export_ruleset:main',
             'codiga-compare = codiga.compare:main',
             'codiga-project = codiga.project:main'
         ],
