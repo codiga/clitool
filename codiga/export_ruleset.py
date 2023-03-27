@@ -7,7 +7,7 @@ Global options:
     -r RULESET               Name of the ruleset
     -f FILE                  File to store the ruleset
 Example:
-    $ codiga-expore-ruleset -r "python-security" -f rules.json
+    $ codiga-export-ruleset -r "python-security" -f rules.json
 """
 
 import os
