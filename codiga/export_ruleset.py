@@ -7,7 +7,7 @@ Global options:
     -r RULESET               Name of the ruleset
     -f FILE                  File to store the ruleset
 Example:
-    $ codiga-save-ruleset -r "python-security" -f rules.json
+    $ codiga-export-ruleset -r "python-security" -f rules.json
 """
 
 import os
@@ -31,7 +31,7 @@ log = logging.getLogger('codiga')
 def element_checked_api_to_json(value):
     if value is None:
         return None
-    if value.lower() == "Any":
+    if value.lower() == "any":
         return "ANY"
     elif value.lower() == "assignment":
         return "ASSIGNMENT"
