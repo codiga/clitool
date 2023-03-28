@@ -41,6 +41,13 @@ def graphql_get_rulesets(api_token: str, ruleset_names: typing.List[str]):
               pattern
               patternMultiline
               elementChecked
+              tests {
+                id
+                name
+                shouldFail
+                content
+                description
+              }
             }
           }
         }"""
@@ -49,6 +56,7 @@ def graphql_get_rulesets(api_token: str, ruleset_names: typing.List[str]):
         return data['ruleSetsForClient']
     return None
 
+
 def graphql_get_ruleset(api_token: str, ruleset_name: str):
     """
     Get rulesets by their names
@@ -56,7 +64,7 @@ def graphql_get_ruleset(api_token: str, ruleset_name: str):
     :param api_token: the API token to access the GraphQL API
     :param ruleset_name: the name of the ruleset to fetch
     """
-    if not ruleset_name or not api_token:
+    if not ruleset_name:
         raise ValueError
 
     query = """
@@ -73,6 +81,13 @@ def graphql_get_ruleset(api_token: str, ruleset_name: str):
               pattern
               patternMultiline
               elementChecked
+              tests {
+                id
+                name
+                shouldFail
+                content
+                description
+              }
             }
           }
         }"""
@@ -82,38 +97,3 @@ def graphql_get_ruleset(api_token: str, ruleset_name: str):
     return None
 
 
-def graphql_get_file_analysis(api_token: str, file_analysis_id: int):
-    """
-    Get the file analysis object with violations
-
-    :param api_token: the API token to access the GraphQL API
-    :param file_analysis_id: the identifier of the file analysis to get
-    :return: the file analysis object and it's violations
-    """
-    if not file_analysis_id:
-        raise ValueError
-
-    query = """
-    {
-      getFileAnalysis(id:""" + str(file_analysis_id) + """){
-        status
-        filename
-        language
-        runningTimeSeconds
-        timestamp
-        violations {
-          id
-          language
-          description
-          severity
-          category
-          line
-          lineCount
-          tool
-          rule
-          ruleUrl
-        }
-      }
-    }
-    """
-    return do_graphql_query(api_token, {"query": query})

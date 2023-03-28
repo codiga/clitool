@@ -33,6 +33,8 @@ setup(
             'codiga-analyze = codiga.analyze:main',
             'codiga-github-action = codiga.github_action:main',
             'codiga-check-quality = codiga.check_quality:main',
+            'codiga-check-ruleset = codiga.check_ruleset:main',
+            'codiga-rosie-analyze = codiga.rosie_analyze:main',
             'codiga-git-hook = codiga.git_hook:main',
             'codiga-snippets-import = codiga.snippets_imports:main',
             'codiga-export-ruleset = codiga.export_ruleset:main',

@@ -13,7 +13,10 @@ ROSIE_URL = "https://analysis.codiga.io/analyze"
 
 log: logging.Logger = logging.getLogger('codiga')
 
-def analyze_rosie(filename: str, language: str, file_encoding: str, code_base64: str, rules: List[RosieRule]) -> List[Violation]:
+
+def analyze_rosie(filename: str, language: str, file_encoding: str,
+                  code_base64: str, rules: List[RosieRule],
+                  server_url: str = ROSIE_URL) -> List[Violation]:
     """
     Run an analysis with rosie
     :param filename: the filename to send
@@ -21,6 +24,7 @@ def analyze_rosie(filename: str, language: str, file_encoding: str, code_base64:
     :param file_encoding: the file encoding
     :param code_base64: the code encoded in base64
     :param rules: the list of rules to use
+    :param server_url: the URL of the Rosie server
     :return: the list of violations
     """
     try:
@@ -33,7 +37,7 @@ def analyze_rosie(filename: str, language: str, file_encoding: str, code_base64:
             "rules": list(map(lambda x: x.to_json(), rules)),
             "logOutput": False
         }
-        response = requests.post(ROSIE_URL, json=payload, headers={'Content-type': 'application/json'}, timeout=10)
+        response = requests.post(server_url, json=payload, headers={'Content-type': 'application/json'}, timeout=10)
         try:
             response_json = response.json()
             for rule_response in response_json['ruleResponses']:

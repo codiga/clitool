@@ -21,6 +21,7 @@ import docopt
 from .constants import DEFAULT_TIMEOUT, API_TOKEN_ENVIRONMENT_VARIABLE
 from .graphql.common import do_graphql_query
 from .graphql.rosie import graphql_get_rulesets, graphql_get_ruleset
+from .rosie.ruleset import element_checked_api_to_json
 from .version import __version__
 
 logging.basicConfig()
@@ -28,38 +29,6 @@ logging.basicConfig()
 log = logging.getLogger('codiga')
 
 
-def element_checked_api_to_json(value):
-    if value is None:
-        return None
-    if value.lower() == "any":
-        return "ANY"
-    elif value.lower() == "assignment":
-        return "ASSIGNMENT"
-    elif value.lower() == "classdefinition":
-        return "CLASS_DEFINITION"
-    elif value.lower() == "forloop":
-        return "FOR_LOOP"
-    elif value.lower() == "functioncall":
-        return "FUNCTION_CALL"
-    elif value.lower() == "functiondefinition":
-        return "FUNCTION_DEFINITION"
-    elif value.lower() == "functionexpression":
-        return "FUNCTION_EXPRESSION"
-    elif value.lower() == "htmlelement":
-        return "HTML_ELEMENT"
-    elif value.lower() == "ifstatement":
-        return "IF_STATEMENT"
-    elif value.lower() == "interface":
-        return "INTERFACE"
-    elif value.lower() == "importstatement":
-        return "IMPORT_STATEMENT"
-    elif value.lower() == "variabledeclaration":
-        return "VARIABLE_DECLARATION"
-    elif value.lower() == "tryblock":
-        return "TRY_BLOCK"
-    elif value.lower() == "type":
-        return "TYPE"
-    return None
 
 def main(argv=None):
     """
