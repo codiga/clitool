@@ -22,14 +22,22 @@ class RosieRule:
         }
 
 
-ELEMENT_CHECKED_TO_ENTITY_CHECKED: typing.Dict[str, str] = {
-    "FunctionCall": "functioncall",
-    "IfCondition": "ifcondition",
-    "Import": "import",
+# Map the GraphQL type into the values required for the API
+ELEMENT_CHECKED_TO_ENTITY_CHECKED_FOR_API: typing.Dict[str, str] = {
+    "Any": "any",
     "Assignment": "assign",
+    "ClassDefinition": "classdefinition",
+    "IfCondition": "ifcondition",
+    "Interface": "interface",
+    "Import": "import",
     "ForLoop": "forloop",
     "FunctionDefinition": "functiondefinition",
-    "TryBlock": "tryblock"
+    "FunctionExpression": "functionexpression",
+    "FunctionCall": "functioncall",
+    "HtmlElement": "htmlelement",
+    "VariableDeclaration": "variabledeclaration",
+    "TryBlock": "tryblock",
+    "Type": "type"
 }
 
 
@@ -46,7 +54,7 @@ def convert_rules_to_rosie_rules(rulesets_api) -> typing.List[RosieRule]:
             pattern = rule['pattern']
 
             if rule_type == "ast":
-                entity_checked = ELEMENT_CHECKED_TO_ENTITY_CHECKED.get(rule['elementChecked'])
+                entity_checked = ELEMENT_CHECKED_TO_ENTITY_CHECKED_FOR_API.get(rule['elementChecked'])
             else:
                 entity_checked = None
 

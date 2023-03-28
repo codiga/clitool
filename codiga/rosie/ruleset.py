@@ -21,7 +21,14 @@ def get_rulesets_from_codigafile(path: str):
         return []
 
 
+
 def element_checked_api_to_json(value):
+    """
+    Mapped the element checked from the GraphQL type
+    into a serializable data for the CLI
+    :param value:
+    :return:
+    """
     if value is None:
         return None
     if value.lower() == "any":

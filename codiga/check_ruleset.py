@@ -17,7 +17,7 @@ import sys
 import time
 
 import docopt
-from codiga.model.rosie_rule import RosieRule
+from codiga.model.rosie_rule import RosieRule, ELEMENT_CHECKED_TO_ENTITY_CHECKED_FOR_API
 
 from codiga.rosie.api import ROSIE_URL, analyze_rosie
 from .constants import DEFAULT_TIMEOUT, API_TOKEN_ENVIRONMENT_VARIABLE
@@ -56,25 +56,34 @@ def main(argv=None):
             server_url = server_url_optional
 
         ruleset = graphql_get_ruleset(None, ruleset_name)
+
+        if ruleset is None:
+            print("ruleset not found")
+            sys.exit(1)
+
         for rule in ruleset['rules']:
+            if rule['elementChecked'] in ELEMENT_CHECKED_TO_ENTITY_CHECKED_FOR_API:
+                element_checked = ELEMENT_CHECKED_TO_ENTITY_CHECKED_FOR_API[rule['elementChecked']]
+            else:
+                element_checked = None
             rule_object = RosieRule(
                 f"{ruleset_name}/{rule['name']}",
                 rule['content'],
                 rule['language'],
                 rule['ruleType'],
-                rule['elementChecked'],
+                element_checked,
                 rule['pattern']
             )
             rule_fail = False
             for test in rule['tests']:
-                filename = "foo"
-                if rule['language'].lower() == "python":
-                    filename = "foo.py"
-
                 violations = analyze_rosie(test['name'], rule['language'], "utf-8", test['content'], [rule_object], server_url)
                 if len(violations) > 0 and not test['shouldFail']:
+                    print("should not fail and has violations")
+                    print(test['name'])
                     rule_fail = True
                 if len(violations) == 0 and test['shouldFail']:
+                    print("should fail and has no violations")
+                    print(test['name'])
                     rule_fail = True
 
             if rule_fail:

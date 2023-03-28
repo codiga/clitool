@@ -4,7 +4,7 @@ Usage:
     codiga-export-ruleset [options]
 
 Global options:
-    -r RULESET               Name of the ruleset
+    -r RULESET               Name of the rulesets (e.g. python-security,python-best-practices)
     -f FILE                  File to store the ruleset
 Example:
     $ codiga-export-ruleset -r "python-security" -f rules.json
@@ -38,7 +38,7 @@ def main(argv=None):
     """
     options = docopt.docopt(__doc__, argv=argv, version=__version__)
 
-    ruleset_name = options['-r']
+    ruleset_names = options['-r']
     filename = options['-f']
 
 
@@ -53,22 +53,25 @@ def main(argv=None):
             sys.exit(1)
 
 
-        if not ruleset_name:
-            log.info('Please specify a ruleset name!')
+        if not ruleset_names:
+            log.info('Please specify a ruleset name (or multiple separated by a comma)!')
             sys.exit(1)
 
-        ruleset = graphql_get_ruleset(api_token, ruleset_name)
-        rules = []
-        for r in ruleset['rules']:
-            new_object = {
-                "name": f"{ruleset_name}/{r['name']}",
-                "code": r['content'],
-                "language": r['language'].upper(),
-                "pattern": r['pattern'],
-                "ruleType": "AST_CHECK" if r['ruleType'].lower() == "ast" else "PATTERN",
-                "entityChecked": element_checked_api_to_json(r['elementChecked'])
-            }
-            rules.append(new_object)
+        for ruleset_name in ruleset_names.split(","):
+            ruleset = graphql_get_ruleset(api_token, ruleset_name)
+            if ruleset is None:
+                continue
+            rules = []
+            for r in ruleset['rules']:
+                new_object = {
+                    "name": f"{ruleset_name}/{r['name']}",
+                    "code": r['content'],
+                    "language": r['language'].upper(),
+                    "pattern": r['pattern'],
+                    "ruleType": "AST_CHECK" if r['ruleType'].lower() == "ast" else "PATTERN",
+                    "entityChecked": element_checked_api_to_json(r['elementChecked'])
+                }
+                rules.append(new_object)
 
         with open(filename, "w") as outfile:
             content = {

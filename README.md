@@ -11,6 +11,8 @@ The following programs are being included:
 
  * `codiga-project`: get metrics about a project
  * `codiga-compare`: compare a project metrics against another projects or branches
+ * `codiga-check-ruleset`: check a ruleset against an API
+ * `codiga-export-ruleset`: export a set of rules into a JSON file
  * `codiga-check-quality`: check the quality of a project for a particular revision
  * `codiga-pre-hook-check`: script to invoke for a pre-push hook to check that a commit has no issue before pushing to your git repo
  * `codiga-github-action`: specific GitHub action for Codiga ([learn more here](https://github.com/codiga/github-action))
@@ -46,6 +48,20 @@ On a terminal, you would set them up like this:
 ```bash
 export CODIGA_API_TOKEN=<INSERT-YOUR-API-TOKEN-HERE>
 ```
+
+
+### Check ruleset
+
+```
+codiga-check-ruleset -r "python-security" -s "https://analysis.codiga.io/analyze"
+```
+
+### Export ruleset
+
+```
+codiga-export-ruleset -r python-security,python-best-practices -f <file>
+```
+
 
 ### Project information tool
 
