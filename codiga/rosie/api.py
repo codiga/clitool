@@ -1,5 +1,7 @@
 import logging
 import os
+import time
+
 import requests
 import requests.exceptions
 from typing import List
@@ -35,9 +37,15 @@ def analyze_rosie(filename: str, language: str, file_encoding: str,
             "fileEncoding": file_encoding,
             "codeBase64": code_base64,
             "rules": list(map(lambda x: x.to_json(), rules)),
-            "logOutput": False
+            "logOutput": False,
+            "options": {
+                "useTreeSitter": True,
+                "logOutput": False
+            }
         }
+        start_ts = time.time()
         response = requests.post(server_url, json=payload, headers={'Content-type': 'application/json'}, timeout=10)
+        stop_ts = time.time()
         try:
             response_json = response.json()
             for rule_response in response_json['ruleResponses']:

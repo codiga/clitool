@@ -56,12 +56,12 @@ def main(argv=None):
         if not ruleset_names:
             log.info('Please specify a ruleset name (or multiple separated by a comma)!')
             sys.exit(1)
-
+        rules = []
         for ruleset_name in ruleset_names.split(","):
             ruleset = graphql_get_ruleset(api_token, ruleset_name)
             if ruleset is None:
                 continue
-            rules = []
+
             for r in ruleset['rules']:
                 new_object = {
                     "name": f"{ruleset_name}/{r['name']}",
