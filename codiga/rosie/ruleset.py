@@ -47,7 +47,7 @@ def element_checked_api_to_json(value):
         return "FUNCTION_EXPRESSION"
     elif value.lower() == "htmlelement":
         return "HTML_ELEMENT"
-    elif value.lower() == "ifstatement":
+    elif value.lower() == "ifcondition":
         return "IF_STATEMENT"
     elif value.lower() == "interface":
         return "INTERFACE"
