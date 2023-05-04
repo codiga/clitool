@@ -1,6 +1,4 @@
-[![Code Grade](https://api.codiga.io/project/29691/status/svg)](https://app.codiga.io/public/project/29691/clitool/dashboard)
-[![Code Quality](https://api.codiga.io/project/29691/score/svg)](https://app.codiga.io/public/project/29691/clitool/dashboard)
-[![PyPI version](https://badge.fury.io/py/codiga.svg)](https://badge.fury.io/py/codiga)
+[Datadog acquired Codiga](https://www.codiga.io/blog/codiga-joins-datadog/). This repository is no longer active.
 
 # Codiga Continuous Integration Tool
 
